@@ -1,0 +1,49 @@
+// Шапка (модуль sticky-header): классы is-scrolled и is-hidden.
+@use '../abstracts' as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: z('header');
+  transition:
+    transform var(--duration) var(--ease),
+    box-shadow var(--duration);
+
+  // Полупрозрачный фон с размытием — на псевдоэлементе, а НЕ на самой шапке.
+  // backdrop-filter (как и transform, filter) на предке превращает его в
+  // «контейнер» для position: fixed потомков: мобильное меню внутри шапки
+  // стало бы высотой с шапку. См. docs/troubleshooting.md → «fixed внутри transform».
+  &::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: '';
+    background: color-mix(in srgb, var(--color-bg) 85%, transparent);
+    backdrop-filter: blur(12px);
+  }
+
+  &.is-scrolled {
+    box-shadow: var(--shadow-sm);
+  }
+
+  &.is-hidden {
+    transform: translateY(-100%);
+  }
+
+  // Пока меню открыто, шапка не уезжает (кнопка закрытия — в ней) и не
+  // имеет transform — иначе снова сломается position: fixed у меню.
+  .is-menu-open & {
+    transform: none;
+    transition: none;
+  }
+}
+
+.header__inner {
+  @include container;
+
+  display: flex;
+  gap: space(6);
+  align-items: center;
+  justify-content: space-between;
+  min-height: rem(64px);
+}

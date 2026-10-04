@@ -1,0 +1,43 @@
+---
+/**
+ * Модалка «Записаться на показ». Открывается любой кнопкой
+ * data-dialog-open="visit" или ссылкой #visit. Скрытое поле flat — номер
+ * квартиры, если запись со страницы квартиры (подставляет scripts/app.ts).
+ * Демо-режим: заявка никуда не уходит — см. scripts/app.ts (form:submit).
+ */
+---
+
+<dialog id="visit" class="dialog" data-module="dialog" aria-labelledby="visit-title">
+  <div class="dialog__box">
+    <button class="dialog__close" data-dialog-close aria-label="Закрыть">×</button>
+    <p class="eyebrow">Офис продаж и шоурум</p>
+    <h2 id="visit-title" class="h3">Записаться на показ</h2>
+    <p class="muted dialog__flat" data-visit-flat hidden></p>
+    <form class="stack form" data-module="form" data-form-schema="visit" novalidate>
+      <input type="hidden" name="flat" />
+      <label class="field">
+        <span class="field__label">Имя</span>
+        <input class="field__input" name="name" autocomplete="name" />
+      </label>
+      <label class="field">
+        <span class="field__label">Телефон</span>
+        <input class="field__input" name="phone" type="tel" data-mask="phone" autocomplete="tel" />
+      </label>
+      <label class="field">
+        <span class="field__label">Когда удобно</span>
+        <select class="field__input" name="time" data-module="select">
+          <option value="">Выберите время</option>
+          <option value="weekday">В будни</option>
+          <option value="weekend">В выходные</option>
+          <option value="online">Онлайн-показ по видео</option>
+        </select>
+      </label>
+      <label class="checkbox field">
+        <input type="checkbox" name="consent" />
+        <span>Соглашаюсь с обработкой персональных данных</span>
+      </label>
+      <button class="btn btn--lg" type="submit">Записаться</button>
+      <p class="small muted">Перезвоним в течение 15 минут в рабочее время.</p>
+    </form>
+  </div>
+</dialog>

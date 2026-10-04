@@ -1,0 +1,57 @@
+---
+/**
+ * Каркас всех страниц: <head> (SEO, Open Graph), шрифты, шапка, подвал,
+ * модалка «Записаться на показ», запуск модулей.
+ */
+import '@fontsource-variable/onest'
+import '@fontsource-variable/playfair-display'
+import '../styles/main.scss'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import VisitDialog from '../components/VisitDialog.astro'
+import { project } from '../data/project'
+
+interface Props {
+  title?: string
+  description?: string
+  /** Тёмная шапка поверх тёмного первого экрана (главная). */
+  heroDark?: boolean
+}
+
+const { title = `${project.fullName} — квартиры у соснового бора`, description = project.lead, heroDark = false } = Astro.props
+const canonical = new URL(Astro.url.pathname, Astro.site)
+---
+
+<!doctype html>
+<html lang="ru" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL('/og.jpg', Astro.site)} />
+    <meta property="og:locale" content="ru_RU" />
+    <meta name="theme-color" content="#1e2b22" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      document.documentElement.classList.add('js')
+    </script>
+  </head>
+  <body class:list={{ 'has-dark-hero': heroDark }} data-module="favorites">
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
+    <div class="scroll-progress" data-module="scroll-progress"></div>
+    <Header />
+    <main id="main" data-module="reveal">
+      <slot />
+    </main>
+    <Footer />
+    <VisitDialog />
+    <script>
+      import '../scripts/app'
+    </script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+---
+/** Логотип: сосна + название. Цвет — currentColor (подстраивается под фон). */
+import { project } from '../data/project'
+---
+
+<a class="logo" href="/" aria-label={`${project.fullName} — на главную`}>
+  <svg class="logo__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3l8 11h-4.5l5.5 8h-6v7h-6v-7H7l5.5-8H8z" fill="currentColor"></path></svg>
+  <span class="logo__text"><span class="logo__kicker">Квартал</span>{project.name}</span>
+</a>

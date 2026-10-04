@@ -1,0 +1,608 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Секции главной: hero (3D), планировки, о проекте, преимущества,
+// расположение, ипотека, ход строительства, призыв.
+// ═══════════════════════════════════════════════════════════════════════════
+@use 'abstracts' as *;
+
+// ─── Hero ──────────────────────────────────────────────────────────────────
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 100svh;
+  overflow: hidden;
+  color: #fff;
+  isolation: isolate;
+  // Заглушка, пока грузится three.js (или если WebGL нет): сумеречное небо.
+  background:
+    radial-gradient(60% 50% at 70% 85%, rgb(201 163 107 / 35%), transparent 70%),
+    linear-gradient(180deg, #0f1712 0%, #1e2b22 55%, #2c3a2a 100%);
+}
+
+.building3d {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.building3d__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease);
+
+  .building3d.is-ready & {
+    opacity: 1;
+  }
+}
+
+.building3d__tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  padding: space(2) space(3);
+  font-size: rem(14px);
+  font-weight: 600;
+  color: var(--color-forest);
+  white-space: nowrap;
+  pointer-events: none;
+  background: var(--color-gold);
+  border-radius: radius('pill');
+  box-shadow: var(--shadow-md);
+}
+
+// Затемнение слева и снизу — текст читается поверх любой сцены.
+.hero__shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgb(10 16 12 / 75%) 0%, rgb(10 16 12 / 30%) 45%, transparent 70%),
+    linear-gradient(0deg, rgb(10 16 12 / 70%) 0%, transparent 35%);
+
+  @include down('md') {
+    background: linear-gradient(0deg, rgb(10 16 12 / 85%) 15%, rgb(10 16 12 / 45%) 60%, transparent 100%);
+  }
+}
+
+.hero__inner {
+  display: grid;
+  gap: space(6);
+  align-content: center;
+  justify-items: start;
+  padding-block: calc(var(--header-height) + #{space(8)}) space(8);
+
+  // Телефон: текст внизу, сверху остаются видны башни.
+  @include down('md') {
+    align-content: end;
+  }
+  // Пустые места не перехватывают мышь — она нужна 3D-сцене.
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.hero__title {
+  max-width: 14ch;
+  // Высота тоже ограничивает размер: на ноутбуке 1440×800 весь экран
+  // (заголовок, кнопки, цифры) должен помещаться без прокрутки.
+  font-size: min(#{fluid(44px, 92px)}, 9.5svh);
+  line-height: 0.98;
+}
+
+.hero__lead {
+  max-width: 44ch;
+  font-size: fluid(17px, 20px);
+  color: rgb(255 255 255 / 80%);
+}
+
+.hero__hint {
+  font-size: rem(13px);
+  color: rgb(255 255 255 / 55%);
+
+  @media (hover: none) {
+    display: none;
+  }
+}
+
+.hero__facts {
+  @include reset-list;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: space(6);
+  // reset-list обнуляет padding — возвращаем боковые поля .container.
+  padding: space(5) var(--container-padding) space(8);
+  border-top: 1px solid rgb(255 255 255 / 15%);
+
+  @include up('md') {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.hero__fact {
+  display: grid;
+  gap: space(1);
+}
+
+.hero__fact-value {
+  font-family: var(--font-heading);
+  font-size: fluid(32px, 52px);
+  line-height: 1;
+  color: var(--color-gold);
+}
+
+.hero__fact-label {
+  font-size: rem(14px);
+  color: rgb(255 255 255 / 65%);
+}
+
+// ─── Планировки ────────────────────────────────────────────────────────────
+.summary__grid {
+  @include reset-list;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: space(5);
+}
+
+.summary__link {
+  display: grid;
+  gap: space(2);
+  height: 100%;
+  padding: space(5);
+  color: inherit;
+  text-decoration: none;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: radius('lg');
+  transition:
+    transform var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease),
+    border-color var(--duration);
+
+  @include hover {
+    border-color: var(--color-gold);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-6px);
+  }
+}
+
+.summary__plan {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  padding: space(3);
+  object-fit: contain;
+  margin-bottom: space(3);
+  background: var(--color-bg);
+  border-radius: radius('md');
+}
+
+.summary__title {
+  font-family: var(--font-heading);
+  font-size: rem(26px);
+}
+
+.summary__meta {
+  font-size: rem(14px);
+  color: var(--color-muted);
+}
+
+.summary__price {
+  margin-top: space(2);
+  font-size: rem(20px);
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+// ─── О проекте ─────────────────────────────────────────────────────────────
+.about__grid {
+  display: grid;
+  gap: space(12);
+  align-items: center;
+
+  @include up('lg') {
+    grid-template-columns: 5fr 6fr;
+  }
+}
+
+.about__text .lead {
+  max-width: 46ch;
+}
+
+.about__list {
+  @include reset-list;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: space(4);
+  padding-top: space(8);
+  margin-top: space(8);
+  font-size: rem(14px);
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-border);
+
+  strong {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: fluid(28px, 40px);
+    font-weight: 500;
+    color: var(--color-text);
+  }
+}
+
+// Иллюстрация из слоёв: каждый слой выше рамки на 15% — при параллаксе
+// не открываются пустые края.
+.landscape {
+  position: relative;
+  aspect-ratio: 5 / 4;
+  overflow: hidden;
+  border-radius: radius('lg');
+  box-shadow: var(--shadow-lg);
+}
+
+.landscape__layer {
+  position: absolute;
+  inset: -15% 0 0;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.landscape__sky {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+// ─── Преимущества ──────────────────────────────────────────────────────────
+.feature {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: space(4);
+  min-height: min(70svh, 560px);
+  padding: fluid(28px, 64px);
+  overflow: hidden;
+  color: #fff;
+  border-radius: radius('lg');
+
+  &--forest {
+    background: var(--color-forest);
+  }
+
+  &--moss {
+    background: #4c6446;
+  }
+
+  &--river {
+    background: #2d4b5a;
+  }
+
+  &--sand {
+    color: var(--color-text);
+    background: #e3d5b8;
+  }
+}
+
+.feature__index {
+  font-size: rem(14px);
+  letter-spacing: 0.14em;
+  opacity: 0.6;
+}
+
+.feature__title {
+  max-width: 16ch;
+  font-size: fluid(32px, 64px);
+  line-height: 1.05;
+}
+
+.feature__text {
+  max-width: 48ch;
+  font-size: fluid(16px, 19px);
+  opacity: 0.85;
+}
+
+.feature__icon {
+  position: absolute;
+  right: fluid(20px, 56px);
+  bottom: fluid(20px, 56px);
+  width: fluid(80px, 200px);
+  height: auto;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.25;
+}
+
+// ─── Расположение ──────────────────────────────────────────────────────────
+.location__grid {
+  display: grid;
+  gap: space(12);
+  align-items: center;
+
+  @include up('lg') {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.location__list {
+  @include reset-list;
+
+  li {
+    display: grid;
+    grid-template-columns: rem(36px) 1fr auto;
+    gap: space(3);
+    align-items: center;
+    padding-block: space(3);
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+.location__icon {
+  display: grid;
+  place-items: center;
+  width: rem(36px);
+  height: rem(36px);
+  background: #fff;
+  border-radius: 50%;
+}
+
+.location__time {
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.map {
+  overflow: hidden;
+  border-radius: radius('lg');
+  box-shadow: var(--shadow-lg);
+}
+
+.map__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.map__route {
+  fill: none;
+  stroke: var(--color-gold-dark);
+  stroke-width: 0.6;
+  stroke-linecap: round;
+}
+
+.map__place {
+  circle {
+    fill: #fff;
+    stroke: var(--color-accent);
+    stroke-width: 0.4;
+  }
+
+  text {
+    dominant-baseline: middle;
+  }
+}
+
+.map__home circle {
+  fill: var(--color-forest);
+  stroke: var(--color-gold);
+  stroke-width: 0.8;
+}
+
+// ─── Ипотека ───────────────────────────────────────────────────────────────
+.mortgage-section {
+  background: var(--color-surface);
+}
+
+.mortgage {
+  display: grid;
+  gap: space(6);
+
+  @include up('lg') {
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+.mortgage__controls {
+  display: grid;
+  gap: space(8);
+  padding: fluid(24px, 48px);
+  background: var(--color-bg);
+  border-radius: radius('lg');
+}
+
+.mortgage__programs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(2);
+  padding: 0;
+  margin: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: space(3);
+  }
+}
+
+.mortgage__field {
+  display: grid;
+  gap: space(3);
+}
+
+.mortgage__label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(2);
+  justify-content: space-between;
+  color: var(--color-muted);
+
+  output {
+    font-weight: 600;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.mortgage__result {
+  display: grid;
+  gap: space(4);
+  align-content: start;
+  padding: fluid(24px, 48px);
+  color: #fff;
+  background: var(--color-forest);
+  border-radius: radius('lg');
+}
+
+.mortgage__caption {
+  color: rgb(255 255 255 / 65%);
+}
+
+.mortgage__monthly {
+  font-family: var(--font-heading);
+  font-size: fluid(40px, 64px);
+  line-height: 1;
+  color: var(--color-gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.mortgage__details {
+  display: grid;
+  gap: space(3);
+  padding-block: space(5);
+  margin: 0;
+  border-block: 1px solid rgb(255 255 255 / 12%);
+
+  div {
+    display: flex;
+    gap: space(4);
+    justify-content: space-between;
+  }
+
+  dt {
+    color: rgb(255 255 255 / 65%);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.mortgage__note {
+  font-size: rem(13px);
+  color: rgb(255 255 255 / 50%);
+}
+
+// ─── Ход строительства ─────────────────────────────────────────────────────
+.progress {
+  padding-block: fluid(48px, 96px);
+
+  .hscroll__pin {
+    gap: space(8);
+  }
+
+  .hscroll__track {
+    padding-bottom: space(4);
+  }
+}
+
+.progress__head {
+  // Элемент grid с margin: auto (от .container) сжимается по тексту и
+  // встаёт по центру — растягиваем на всю ширину.
+  width: 100%;
+
+  .section-title {
+    margin-bottom: 0;
+  }
+}
+
+.progress__card {
+  display: grid;
+  gap: space(3);
+  align-content: start;
+  padding: space(6);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: radius('lg');
+}
+
+.progress__art {
+  margin-bottom: space(2);
+  color: var(--color-muted);
+  background: var(--color-bg);
+  border-radius: radius('md');
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .is-done & {
+    color: var(--color-accent);
+  }
+}
+
+.progress__date {
+  font-family: var(--font-mono);
+  font-size: rem(13px);
+  color: var(--color-gold-dark);
+  text-transform: uppercase;
+}
+
+.progress__title {
+  font-size: rem(26px);
+}
+
+.progress__badge {
+  justify-self: start;
+  padding: space(1) space(3);
+  margin-top: space(2);
+  font-size: rem(12px);
+  font-weight: 600;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border-radius: radius('pill');
+
+  .is-done & {
+    color: var(--color-accent-contrast);
+    background: var(--color-accent);
+  }
+}
+
+// ─── Призыв ────────────────────────────────────────────────────────────────
+.cta {
+  color: #fff;
+  text-align: center;
+  background: radial-gradient(50% 80% at 50% 120%, rgb(201 163 107 / 40%), transparent 70%), var(--color-forest);
+}
+
+.cta__inner {
+  display: grid;
+  gap: space(6);
+  justify-items: center;
+
+  .lead {
+    color: rgb(255 255 255 / 75%);
+  }
+}
+
+.cta__title {
+  max-width: 18ch;
+  font-size: fluid(36px, 72px);
+  line-height: 1.05;
+}

@@ -1,0 +1,452 @@
+// Модули-эффекты: бесконечная лента, бесконечная галерея, лайтбокс,
+// горизонтальный скролл, Flip-фильтр, стопка карточек, курсор, прогресс.
+// Размеры — CSS-переменными: переопределяйте их в стилях проекта.
+@use '../abstracts' as *;
+
+// ─── infinite-slider ────────────────────────────────────────────────────────
+.infinite {
+  --infinite-gap: #{rem(28px)};
+  --infinite-slide-width: clamp(220px, 26vw, 360px);
+  --infinite-slide-height: clamp(300px, 50vh, 470px);
+  --infinite-height: clamp(400px, 62vh, 600px);
+
+  display: grid;
+  gap: space(6);
+}
+
+.infinite__viewport {
+  position: relative;
+  height: var(--infinite-height);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y; // вертикальный свайп — странице
+
+  .is-dragging & {
+    cursor: grabbing;
+  }
+}
+
+.infinite__slide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--infinite-slide-width);
+  height: var(--infinite-slide-height);
+  margin: auto 0;
+  overflow: hidden;
+  border-radius: radius('lg');
+  will-change: transform;
+
+  // Боковые слайды темнее (--dim ставит JS).
+  &::after {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    content: '';
+    background: var(--color-bg);
+    opacity: var(--dim, 0);
+  }
+}
+
+.infinite__art {
+  position: absolute;
+  inset: 0;
+
+  img {
+    @include object-cover;
+  }
+}
+
+.infinite__title {
+  overflow: hidden;
+  font-family: var(--font-heading);
+  font-size: fluid(18px, 28px);
+  font-weight: 700;
+  text-align: center;
+}
+
+.infinite__counter {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+// Без JS — обычная горизонтальная прокрутка.
+.infinite:not(.is-ready) .infinite__viewport {
+  display: flex;
+  gap: var(--infinite-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.infinite:not(.is-ready) .infinite__slide {
+  position: relative;
+  flex: none;
+  scroll-snap-align: center;
+}
+
+// 3D: DOM-слайды остаются только для размеров и доступности, рисует canvas.
+.infinite.is-gl .infinite__slide {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.infinite__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+// ─── infinite-gallery ──────────────────────────────────────────────────────
+.gallery {
+  --gallery-columns: 6;
+  --gallery-grid-width: 170vw;
+  --gallery-gap: #{rem(16px)};
+
+  @include down('md') {
+    --gallery-columns: 3;
+    --gallery-grid-width: 260vw;
+  }
+}
+
+.gallery__pin {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.gallery__viewport {
+  position: absolute;
+  inset: 0;
+  overflow: auto; // без JS — обычная прокрутка блока
+  outline: none;
+
+  .gallery.is-active & {
+    overflow: hidden;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+
+  .gallery.is-dragging & {
+    cursor: grabbing;
+  }
+}
+
+.gallery__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--gallery-columns), 1fr);
+  width: var(--gallery-grid-width);
+}
+
+.gallery__item {
+  position: relative;
+  aspect-ratio: 4 / 5;
+
+  .gallery.is-active & {
+    will-change: transform;
+  }
+
+  img {
+    position: absolute;
+    inset: calc(var(--gallery-gap) / 2);
+    width: calc(100% - var(--gallery-gap));
+    height: calc(100% - var(--gallery-gap));
+    object-fit: cover;
+    border-radius: radius('md');
+    transition: box-shadow var(--duration);
+  }
+
+  &:focus-visible img {
+    box-shadow: 0 0 0 3px var(--color-focus);
+  }
+}
+
+// ─── lightbox ──────────────────────────────────────────────────────────────
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: z('dialog');
+  display: grid;
+  place-items: center;
+  padding: space(6);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: zoom-out;
+  background: rgb(0 0 0 / 85%);
+  backdrop-filter: blur(10px);
+}
+
+.lightbox__figure {
+  position: relative;
+  display: grid;
+  gap: space(4);
+  justify-items: center;
+  margin: 0;
+}
+
+// Окно с пропорциями снимка (--ar ставит JS): помещается и по ширине, и по высоте.
+.lightbox__frame {
+  --ar: 1.5;
+
+  position: relative;
+  width: min(90vw, calc(78svh * var(--ar)));
+  aspect-ratio: var(--ar);
+  overflow: hidden;
+  border-radius: radius('lg');
+
+  img {
+    @include object-cover;
+  }
+}
+
+.lightbox__caption {
+  display: grid;
+  gap: space(1);
+  justify-items: center;
+  max-width: rem(720px);
+  color: #fff;
+  text-align: center;
+}
+
+.lightbox__title {
+  font-size: fluid(18px, 28px);
+  font-weight: 700;
+}
+
+.lightbox__meta,
+.lightbox__credit {
+  font-size: rem(14px);
+  opacity: 0.7;
+}
+
+.lightbox__close {
+  @include reset-button;
+
+  position: absolute;
+  top: space(5);
+  right: space(5);
+  display: grid;
+  place-items: center;
+  width: rem(48px);
+  height: rem(48px);
+  color: #fff;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 50%;
+
+  @include hover {
+    color: #000;
+    background: #fff;
+  }
+}
+
+// ─── hscroll ────────────────────────────────────────────────────────────────
+.hscroll {
+  --hscroll-card: #{rem(420px)};
+
+  position: relative;
+}
+
+.hscroll__pin {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-content: center;
+  overflow: hidden;
+
+  .hscroll.is-active & {
+    height: 100svh;
+  }
+}
+
+// Без эффекта (мобилка, data-hscroll-min) — обычная лента со scroll-snap.
+.hscroll:not(.is-active) .hscroll__track {
+  @include scrollbar-hidden;
+
+  width: auto;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.hscroll__track {
+  display: flex;
+  gap: space(8);
+  width: max-content;
+  padding-inline: var(--container-padding);
+}
+
+.hscroll__card {
+  flex: none;
+  width: var(--hscroll-card);
+  scroll-snap-align: start;
+
+  @include down('md') {
+    width: 78vw;
+  }
+}
+
+.hscroll__progress {
+  height: 2px;
+  margin-inline: var(--container-padding);
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+// ─── flip-filter ───────────────────────────────────────────────────────────
+.flip-filter__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(2);
+  margin-bottom: space(6);
+
+  [data-filter] {
+    @include reset-button;
+
+    padding: space(2) space(4);
+    border: 1px solid var(--color-border);
+    border-radius: radius('pill');
+    transition:
+      background-color var(--duration),
+      color var(--duration);
+
+    &[aria-pressed='true'] {
+      color: var(--color-accent-contrast);
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+    }
+  }
+}
+
+[data-flip-item].is-hidden {
+  display: none;
+}
+
+// ─── stack-cards ───────────────────────────────────────────────────────────
+.stack-cards {
+  display: grid;
+  gap: space(6);
+}
+
+.stack-cards__item {
+  position: sticky;
+  // Каждая следующая карточка липнет чуть ниже — видны «корешки» стопки.
+  top: calc(var(--header-height) + #{space(6)} + var(--stack-index, 0) * #{space(3)});
+  transform-origin: center top;
+
+  // Затемнение уходящей карточки (--stack-dim анимирует JS).
+  &::after {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    content: '';
+    background: #000;
+    border-radius: inherit;
+    opacity: var(--stack-dim, 0);
+  }
+}
+
+// ─── scroll-progress ───────────────────────────────────────────────────────
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: z('header') + 1;
+  height: 3px;
+  pointer-events: none;
+  background: var(--color-accent);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left;
+}
+
+// ─── cursor ────────────────────────────────────────────────────────────────
+// Системный курсор прячем только там, где есть свой, и не над полями ввода.
+.has-cursor,
+.has-cursor * {
+  cursor: none !important;
+}
+
+.has-cursor :is(input, textarea, select, [contenteditable]) {
+  cursor: auto !important;
+}
+
+.cursor {
+  --cursor-size: #{rem(40px)};
+
+  position: fixed;
+  inset: 0;
+  z-index: z('devtools') - 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+
+  &.is-visible {
+    opacity: 1;
+  }
+
+  &.is-text {
+    opacity: 0;
+  }
+}
+
+.cursor__dot,
+.cursor__ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+}
+
+.cursor__dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--color-accent);
+}
+
+.cursor__ring {
+  display: grid;
+  place-items: center;
+  width: var(--cursor-size);
+  height: var(--cursor-size);
+  margin: calc(var(--cursor-size) / -2) 0 0 calc(var(--cursor-size) / -2);
+  border: 1px solid var(--color-accent);
+  transition:
+    width 0.3s var(--ease),
+    height 0.3s var(--ease),
+    margin 0.3s var(--ease),
+    background-color 0.3s;
+
+  .is-hover & {
+    --cursor-size: #{rem(64px)};
+
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+
+  .has-label & {
+    --cursor-size: #{rem(96px)};
+
+    background: var(--color-accent);
+  }
+
+  .is-pressed & {
+    transform: scale(0.85);
+  }
+}
+
+.cursor__label {
+  font-size: rem(12px);
+  font-weight: 600;
+  color: var(--color-accent-contrast);
+  text-align: center;
+}

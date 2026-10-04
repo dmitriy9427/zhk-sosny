@@ -1,0 +1,34 @@
+---
+/** Ход строительства: горизонтальная лента от вертикальной прокрутки (hscroll кита). */
+import { progress } from '../data/project'
+---
+
+<section class="hscroll progress" id="progress" data-module="hscroll" data-hscroll-min="md">
+  <div class="hscroll__pin" data-hscroll-pin>
+    <div class="container progress__head">
+      <p class="eyebrow">Ход строительства</p>
+      <h2 class="section-title">Строим по графику</h2>
+    </div>
+    <div class="hscroll__track" data-hscroll-track>
+      {
+        progress.map((step, i) => (
+          <article class:list={['hscroll__card progress__card', { 'is-done': step.done }]} data-hscroll-card>
+            <div class="progress__art" aria-hidden="true">
+              <svg viewBox="0 0 200 120">
+                <rect x="0" y="100" width="200" height="20" fill="currentColor" opacity=".15" />
+                {Array.from({ length: 3 }, (_, t) => (
+                  <rect x={30 + t * 50} y={100 - (i + 1) * (14 + t * 3)} width="36" height={(i + 1) * (14 + t * 3)} fill="currentColor" opacity={0.35 + t * 0.2} />
+                ))}
+                {i < 3 && <path d={`M150 ${30 - i * 4} v70 M150 ${30 - i * 4} h40`} stroke="currentColor" stroke-width="3" fill="none" />}
+              </svg>
+            </div>
+            <p class="progress__date" data-hscroll-scramble>{step.date}</p>
+            <h3 class="progress__title">{step.title}</h3>
+            <p class="muted">{step.text}</p>
+            <span class="progress__badge">{step.done ? 'Выполнено' : 'В планах'}</span>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,33 @@
+---
+/** Преимущества — большие карточки «стопкой» при прокрутке (модуль stack-cards кита). */
+import { features } from '../data/project'
+const icons: Record<string, string> = {
+  forest: 'M24 4l10 14h-6l8 12h-9v12h-6V30h-9l8-12h-6z',
+  moss: 'M8 40c4-14 12-22 32-30-4 18-12 28-30 32M14 34l14-14',
+  river: 'M4 18c6-6 12 6 18 0s12 6 18 0M4 28c6-6 12 6 18 0s12 6 18 0M4 38c6-6 12 6 18 0s12 6 18 0',
+  sand: 'M24 6l18 10v24H6V16zM18 40V28h12v12',
+}
+---
+
+<section class="section features">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Почему «Сосны»</p>
+      <h2 class="section-title" data-reveal>Жизнь, которой не хватало в городе</h2>
+    </div>
+    <div class="stack-cards" data-module="stack-cards">
+      {
+        features.map((feature, i) => (
+          <article class={`stack-cards__item feature feature--${feature.tone}`} data-stack-card>
+            <p class="feature__index">0{i + 1}</p>
+            <h3 class="feature__title">{feature.title}</h3>
+            <p class="feature__text">{feature.text}</p>
+            <svg class="feature__icon" viewBox="0 0 48 48" aria-hidden="true">
+              <path d={icons[feature.tone]} />
+            </svg>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

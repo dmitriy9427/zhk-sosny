@@ -1,0 +1,111 @@
+---
+/**
+ * Каталог квартир: фильтры + шахматка/список. Вся логика — модуль catalog
+ * (src/modules/catalog), фильтры в адресе — ссылкой можно поделиться.
+ */
+import Base from '../../layouts/Base.astro'
+import Chess from '../../components/Chess.astro'
+import { FLATS, bounds } from '../../data/flats'
+
+const b = bounds()
+const filterBounds = { price: b.price, area: b.area, floor: b.floor }
+---
+
+<Base title="Выбор квартиры — квартал «Сосны»" description="Все квартиры квартала «Сосны»: шахматка, фильтры по цене, площади и этажу, планировки.">
+  <section class="section catalog" data-module="catalog">
+    <div class="container">
+      <p class="eyebrow">Квартиры</p>
+      <h1 class="section-title">Выбор квартиры</h1>
+
+      <form class="filters" data-catalog-filters data-bounds={JSON.stringify(filterBounds)}>
+        <fieldset class="filters__group">
+          <legend class="field__label">Комнат</legend>
+          <div class="pills">
+            {
+              [
+                [0, 'Ст'],
+                [1, '1'],
+                [2, '2'],
+                [3, '3'],
+              ].map(([value, label]) => (
+                <label class="pill pill--square">
+                  <input type="checkbox" name="rooms" value={value} />
+                  <span>{label}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+        {
+          (
+            [
+              ['price', 'Цена', 'price', 100000],
+              ['area', 'Площадь', 'area', 1],
+              ['floor', 'Этаж', 'number', 1],
+            ] as const
+          ).map(([name, label, format, step]) => (
+            <div class="filters__group">
+              <span class="field__label">{label}</span>
+              <div class="range" data-module="range" data-range-format={format} data-range-name={name}>
+                <div class="range__track">
+                  <input type="range" name={`${name}Min`} min={b[name][0]} max={b[name][1]} step={step} value={b[name][0]} aria-label={`${label} от`} />
+                  <input type="range" name={`${name}Max`} min={b[name][0]} max={b[name][1]} step={step} value={b[name][1]} aria-label={`${label} до`} />
+                </div>
+                <p class="range__values">
+                  <output data-range-min /> <output data-range-max />
+                </p>
+              </div>
+            </div>
+          ))
+        }
+        <div class="filters__group">
+          <span class="field__label">Башня</span>
+          <select name="tower" data-module="select" aria-label="Башня">
+            <option value="">Все башни</option>
+            <option value="1">Башня 1</option>
+            <option value="2">Башня 2</option>
+            <option value="3">Башня 3 · у реки</option>
+          </select>
+        </div>
+        <div class="filters__group filters__checks">
+          <label class="choice"><input type="checkbox" name="onlyFree" checked /> Только свободные</label>
+          <label class="choice"><input type="checkbox" name="finish" value="white-box" /> White box</label>
+          <label class="choice"><input type="checkbox" name="finish" value="design" /> С отделкой</label>
+        </div>
+        <div class="filters__bar">
+          <p class="filters__count">Найдено: <strong data-catalog-count>…</strong></p>
+          <select name="sort" data-module="select" aria-label="Сортировка">
+            <option value="price">Сначала дешевле</option>
+            <option value="-price">Сначала дороже</option>
+            <option value="area">Площадь по возрастанию</option>
+            <option value="-area">Площадь по убыванию</option>
+            <option value="floor">По этажу</option>
+          </select>
+          <button class="btn btn--ghost btn--sm" type="reset">Сбросить</button>
+        </div>
+      </form>
+
+      <div class="tabs catalog__views" data-module="tabs" id="view">
+        <div class="tabs__list" data-tabs-list>
+          <button class="tabs__tab" data-tabs-tab data-tabs-value="list">Список</button>
+          <button class="tabs__tab" data-tabs-tab data-tabs-value="chess">Шахматка</button>
+        </div>
+        <div class="tabs__panel" data-tabs-panel>
+          <div class="catalog__list" data-catalog-list></div>
+          <button class="btn btn--secondary catalog__more" type="button" data-catalog-more hidden>Показать ещё</button>
+        </div>
+        <div class="tabs__panel" data-tabs-panel>
+          <ul class="chess-legend">
+            <li><i class="chess__cell chess__cell--r0"></i> Студия</li>
+            <li><i class="chess__cell chess__cell--r1"></i> 1-комнатная</li>
+            <li><i class="chess__cell chess__cell--r2"></i> 2-комнатная</li>
+            <li><i class="chess__cell chess__cell--r3"></i> 3-комнатная</li>
+            <li><i class="chess__cell chess__cell--sold"></i> Продана / бронь</li>
+          </ul>
+          <Chess />
+        </div>
+      </div>
+    </div>
+    <script type="application/json" data-catalog-data set:html={JSON.stringify(FLATS)} />
+  </section>
+</Base>

@@ -1,0 +1,105 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Современный сброс стилей. Каждое правило закрывает конкретную проблему.
+// ═══════════════════════════════════════════════════════════════════════════
+@use '../abstracts' as *;
+
+*,
+*::before,
+*::after {
+  // width включает padding и border — иначе width: 100% + padding вылезает за родителя.
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  // iOS увеличивает шрифт в горизонтальной ориентации — отключаем.
+  text-size-adjust: 100%;
+  // Якоря не прячутся под фиксированной шапкой.
+  scroll-padding-top: var(--header-height);
+  // Полоса прокрутки всегда занимает место: страница не «прыгает», когда
+  // контента становится больше экрана (и обратно).
+  scrollbar-gutter: stable;
+}
+
+body {
+  // svh — «маленькая» высота экрана телефона (с видимой адресной строкой).
+  // 100vh на iOS больше видимой области, и низ блока уезжает под панель.
+  min-height: 100svh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block; // убирает «щель» под картинкой (она inline и стоит на базовой линии)
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto; // с атрибутами width/height сохраняет пропорции и не даёт CLS
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit; // формы по умолчанию не наследуют шрифт
+}
+
+// iOS увеличивает страницу при фокусе на поле со шрифтом меньше 16px.
+@include down('md') {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  // Длинные слова и ссылки не ломают вёрстку на узких экранах.
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance; // ровнее переносы в заголовках
+}
+
+p {
+  text-wrap: pretty; // без «висячего» слова в последней строке
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+// Пустой ::selection по умолчанию плохо виден на акцентном фоне.
+::selection {
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+}

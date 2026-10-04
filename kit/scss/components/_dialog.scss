@@ -1,0 +1,90 @@
+// Модальное окно (модуль dialog) на нативном <dialog>.
+@use '../abstracts' as *;
+
+.dialog {
+  // dialog растянут на весь экран и прозрачен: клик по нему = клик по фону.
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: var(--container-padding);
+  margin: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+
+  &[open] {
+    display: grid;
+    place-items: center;
+    animation: kit-dialog-in var(--duration) var(--ease);
+  }
+
+  &::backdrop {
+    background: rgb(0 0 0 / 55%);
+    animation: kit-fade-in var(--duration) var(--ease);
+  }
+
+  &.is-closing {
+    animation: kit-dialog-out 0.2s ease-in forwards;
+
+    &::backdrop {
+      animation: kit-fade-out 0.2s ease-in forwards;
+    }
+  }
+}
+
+.dialog__box {
+  position: relative;
+  width: min(100%, rem(560px));
+  max-height: calc(100svh - 2 * var(--container-padding));
+  padding: fluid(24px, 40px);
+  overflow: auto;
+  overscroll-behavior: contain; // прокрутка внутри окна не прокручивает страницу
+  background: var(--color-bg);
+  border-radius: radius('lg');
+  box-shadow: var(--shadow-lg);
+}
+
+.dialog__close {
+  @include reset-button;
+
+  position: absolute;
+  top: space(3);
+  right: space(3);
+  display: grid;
+  place-items: center;
+  width: rem(40px);
+  height: rem(40px);
+  font-size: rem(24px);
+  border-radius: 50%;
+
+  @include hover {
+    background: var(--color-surface);
+  }
+}
+
+@keyframes kit-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+
+@keyframes kit-dialog-out {
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+
+@keyframes kit-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes kit-fade-out {
+  to {
+    opacity: 0;
+  }
+}

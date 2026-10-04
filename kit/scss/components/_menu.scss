@@ -1,0 +1,84 @@
+// Бургер и мобильное меню (модуль menu).
+@use '../abstracts' as *;
+
+.burger {
+  @include reset-button;
+
+  position: relative;
+  z-index: z('menu') + 1; // над открытым меню — чтобы им же закрыть
+  display: grid;
+  place-items: center;
+  width: rem(44px);
+  height: rem(44px);
+
+  @include up('lg') {
+    display: none;
+  }
+}
+
+// Три полоски: средняя — сам span, крайние — ::before/::after.
+.burger__lines,
+.burger__lines::before,
+.burger__lines::after {
+  display: block;
+  width: rem(22px);
+  height: 2px;
+  background: currentcolor;
+  border-radius: 2px;
+  transition:
+    transform var(--duration) var(--ease),
+    opacity var(--duration);
+}
+
+.burger__lines {
+  position: relative;
+
+  &::before,
+  &::after {
+    position: absolute;
+    left: 0;
+    content: '';
+  }
+
+  &::before {
+    top: -7px;
+  }
+
+  &::after {
+    top: 7px;
+  }
+
+  [aria-expanded='true'] > & {
+    background: transparent;
+
+    &::before {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    &::after {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+  }
+}
+
+.mobile-menu {
+  @include down('lg') {
+    position: fixed;
+    inset: 0;
+    z-index: z('menu');
+    padding: calc(var(--header-height) + #{space(4)}) var(--container-padding) space(8);
+    overflow-y: auto;
+    visibility: hidden;
+    background: var(--color-bg);
+    opacity: 0;
+    transition:
+      opacity var(--duration) var(--ease),
+      visibility 0s var(--duration);
+
+    &.is-open {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity var(--duration) var(--ease);
+    }
+  }
+}

@@ -1,0 +1,38 @@
+---
+/** Первый экран: 3D-квартал (three.js), заголовок, ключевые цифры, кнопки. */
+import { FLATS } from '../data/flats'
+import { facts, project } from '../data/project'
+
+const towers = [1, 2, 3].map((tower) => ({ tower, free: FLATS.filter((f) => f.tower === tower && f.status === 'free').length }))
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="building3d" data-module="building3d" data-towers={JSON.stringify(towers)}>
+    <p class="building3d__tooltip" hidden></p>
+  </div>
+  <div class="hero__shade" aria-hidden="true"></div>
+  <div class="container hero__inner">
+    <p class="eyebrow eyebrow--light" data-reveal="fade">Сдача — {project.deadline}</p>
+    <h1 class="hero__title" id="hero-title" data-module="split-text" data-split-text-type="lines">
+      {project.tagline}
+    </h1>
+    <p class="hero__lead" data-reveal>{project.lead}</p>
+    <div class="cluster" data-reveal>
+      <a class="btn btn--lg btn--gold" href="/flats/" data-module="magnetic">Выбрать квартиру</a>
+      <button class="btn btn--lg btn--glass" data-dialog-open="visit">Записаться на показ</button>
+    </div>
+    <p class="hero__hint" data-reveal="fade">Наведите на башню, чтобы увидеть свободные квартиры</p>
+  </div>
+  <ul class="container hero__facts">
+    {
+      facts.map((fact) => (
+        <li class="hero__fact" data-reveal>
+          <span class="hero__fact-value counter" data-module="counter" data-counter-decimals={fact.decimals ?? 0} data-counter-suffix={fact.suffix}>
+            {fact.value}
+          </span>
+          <span class="hero__fact-label">{fact.label}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>

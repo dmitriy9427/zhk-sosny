@@ -1,0 +1,12 @@
+// Главный файл стилей (подключён в layouts/Base.astro).
+// ПОРЯДОК ВАЖЕН: сначала настройки, потом CSS кита, потом стили проекта.
+//
+//   _layout.scss          — шапка, подвал, кнопки, общие элементы (pill, статус…)
+//   sections/_home.scss   — секции главной (hero, планировки, о проекте…)
+//   sections/_catalog.scss — каталог, шахматка, карточка и страница квартиры
+@use 'abstracts';
+@use 'kit/scss';
+
+@use 'layout';
+@use 'sections/home';
+@use 'sections/catalog';

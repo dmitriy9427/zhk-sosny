@@ -1,0 +1,14 @@
+// Стили компонентов кита. Ненужный компонент можно убрать из списка —
+// его CSS не попадёт в сборку.
+@use 'button';
+@use 'accordion';
+@use 'tabs';
+@use 'dialog';
+@use 'menu';
+@use 'header';
+@use 'slider';
+@use 'misc';
+@use 'fields';
+@use 'select';
+@use 'swiper';
+@use 'effects';

@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro'
+import Hero from '../components/Hero.astro'
+import Summary from '../components/Summary.astro'
+import About from '../components/About.astro'
+import Features from '../components/Features.astro'
+import Location from '../components/Location.astro'
+import Mortgage from '../components/Mortgage.astro'
+import Progress from '../components/Progress.astro'
+---
+
+<Base heroDark>
+  <Hero />
+  <Summary />
+  <About />
+  <Features />
+  <Location />
+  <section class="section mortgage-section" id="mortgage">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Ипотека</p>
+        <h2 class="section-title" data-reveal>Рассчитайте платёж</h2>
+      </div>
+      <Mortgage />
+    </div>
+  </section>
+  <Progress />
+  <section class="section cta">
+    <div class="container cta__inner">
+      <h2 class="cta__title" data-module="split-text" data-split-text-type="words">Приезжайте посмотреть квартал вживую</h2>
+      <p class="lead">Покажем шоурум с отделкой, макет квартала и строительную площадку.</p>
+      <button class="btn btn--lg btn--gold" data-dialog-open="visit" data-module="magnetic">Записаться на показ</button>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,72 @@
+---
+/**
+ * О проекте: текст + «живая» иллюстрация — слои пейзажа (небо, лес, башни,
+ * река) двигаются с разной скоростью при прокрутке (модуль parallax кита).
+ * Иллюстрация нарисована SVG прямо здесь — без картинок.
+ */
+const pines = (count: number, y: number, h: number, seed: number) =>
+  Array.from({ length: count }, (_, i) => {
+    const x = (i / count) * 1240 + ((seed * (i + 3)) % 40)
+    const s = h * (0.7 + ((seed * (i + 7)) % 30) / 60)
+    return `M${x} ${y} l${s * 0.35} ${-s} l${s * 0.35} ${s}z`
+  }).join(' ')
+
+// Три башни «лесенкой» и их окна: 4 в ряд, через этаж; горит ~60 %.
+const towers = [
+  { x: 420, y: 250, w: 110 },
+  { x: 560, y: 200, w: 120 },
+  { x: 710, y: 290, w: 105 },
+]
+const windows = towers.flatMap((t, ti) =>
+  Array.from({ length: Math.floor((670 - t.y - 30) / 34) * 4 }, (_, i) => ({
+    x: t.x + 12 + (i % 4) * ((t.w - 24 - 12) / 3),
+    y: t.y + 20 + Math.floor(i / 4) * 34,
+    lit: (i * 37 + ti * 11) % 5 > 1,
+  })),
+)
+---
+
+<section class="section about" id="about">
+  <div class="container about__grid">
+    <div class="about__text">
+      <p class="eyebrow">О проекте</p>
+      <h2 class="section-title" data-module="split-text" data-split-text-type="lines">Город за спиной, лес — за окном</h2>
+      <p class="lead" data-reveal>
+        Три башни разной высоты стоят «лесенкой»: из каждой квартиры виден горизонт. Фасады — клинкер цвета коры, окна в пол,
+        потолки 3 метра.
+      </p>
+      <ul class="about__list" data-reveal>
+        <li><strong>3 м</strong> высота потолков</li>
+        <li><strong>4</strong> лифта Kone в каждой башне</li>
+        <li><strong>B+</strong> класс энергоэффективности</li>
+      </ul>
+    </div>
+    <div class="landscape" aria-hidden="true">
+      <svg class="landscape__layer landscape__sky" viewBox="0 0 1240 800" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2c3e50"></stop><stop offset=".55" stop-color="#d98c5f"></stop><stop offset="1" stop-color="#f3c98b"></stop>
+          </linearGradient>
+        </defs>
+        <rect width="1240" height="800" fill="url(#sky)"></rect>
+        <circle cx="860" cy="470" r="70" fill="#ffe2a8" opacity=".9"></circle>
+      </svg>
+      <div class="landscape__layer" data-module="parallax" data-parallax-speed="0.05">
+        <svg viewBox="0 0 1240 800" preserveAspectRatio="xMidYMax slice"><path d={pines(40, 560, 120, 11)} fill="#4b5a4c"></path></svg>
+      </div>
+      <div class="landscape__layer" data-module="parallax" data-parallax-speed="0.12">
+        <svg viewBox="0 0 1240 800" preserveAspectRatio="xMidYMax slice">
+          <g fill="#2a3229">{towers.map((t) => <rect x={t.x} y={t.y} width={t.w} height={670 - t.y} />)}</g>
+          <g fill="#f7c27a">{windows.map((w) => <rect x={w.x} y={w.y} width="12" height="16" opacity={w.lit ? 0.9 : 0.12} />)}</g>
+        </svg>
+      </div>
+      <div class="landscape__layer" data-module="parallax" data-parallax-speed="0.22">
+        <svg viewBox="0 0 1240 800" preserveAspectRatio="xMidYMax slice">
+          <path d={pines(28, 700, 190, 5)} fill="#1c2a20"></path>
+          <rect y="690" width="1240" height="110" fill="#22374a"></rect>
+          <path d="M0 720 Q 310 700 620 725 T 1240 715" stroke="#f3c98b" stroke-width="2" fill="none" opacity=".45"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>

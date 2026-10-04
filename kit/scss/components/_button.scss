@@ -1,0 +1,75 @@
+// Кнопка. Варианты: .btn--secondary, .btn--ghost; размеры: .btn--sm, .btn--lg.
+// Для ссылок и кнопок одинаково: <a class="btn"> и <button class="btn">.
+@use '../abstracts' as *;
+
+.btn {
+  @include reset-button;
+
+  display: inline-flex;
+  gap: space(2);
+  align-items: center;
+  justify-content: center;
+  min-height: rem(48px); // зона нажатия ≥ 44px — требование доступности для пальца
+  padding: space(3) space(6);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-accent-contrast);
+  text-align: center;
+  text-decoration: none;
+  background: var(--color-accent);
+  border: 1px solid transparent;
+  border-radius: radius('pill');
+  transition:
+    background-color var(--duration) var(--ease),
+    color var(--duration) var(--ease),
+    border-color var(--duration) var(--ease),
+    opacity var(--duration);
+
+  @include hover {
+    background: color-mix(in srgb, var(--color-accent) 85%, black);
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  // Индикатор загрузки (модуль form ставит aria-busy).
+  &[aria-busy='true'] {
+    cursor: progress;
+    opacity: 0.7;
+  }
+
+  &--secondary {
+    color: var(--color-text);
+    background: var(--color-surface);
+    border-color: var(--color-border);
+
+    @include hover {
+      background: var(--color-border);
+    }
+  }
+
+  &--ghost {
+    color: var(--color-accent);
+    background: transparent;
+    border-color: currentcolor;
+
+    @include hover {
+      background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    }
+  }
+
+  &--sm {
+    min-height: rem(40px);
+    padding: space(2) space(4);
+    font-size: rem(14px);
+  }
+
+  &--lg {
+    min-height: rem(56px);
+    padding: space(4) space(8);
+    font-size: rem(18px);
+  }
+}

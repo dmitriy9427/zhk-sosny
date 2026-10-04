@@ -1,0 +1,106 @@
+---
+/**
+ * Страница квартиры — собирается для каждой из 270 квартир при сборке
+ * (getStaticPaths): свой адрес, свой <title>, её видят поисковики.
+ */
+import Base from '../../layouts/Base.astro'
+import Mortgage from '../../components/Mortgage.astro'
+import { FINISH_LABEL, FLATS, FLATS_PER_FLOOR, ROOM_LABEL, STATUS_LABEL, VIEW_LABEL, formatPrice, type Flat } from '../../data/flats'
+import { planSvg } from '../../lib/plan'
+import { cardHtml, flatTitle } from '../../lib/card'
+import { project } from '../../data/project'
+
+export function getStaticPaths() {
+  return FLATS.map((flat) => ({ params: { id: flat.id }, props: { flat } }))
+}
+
+const { flat } = Astro.props as { flat: Flat }
+const title = flatTitle(flat)
+const similar = FLATS.filter((f) => f.id !== flat.id && f.rooms === flat.rooms && f.status === 'free')
+  .sort((a, b) => Math.abs(a.price - flat.price) - Math.abs(b.price - flat.price))
+  .slice(0, 3)
+const floorFlats = FLATS.filter((f) => f.tower === flat.tower && f.floor === flat.floor).sort((a, b) => a.position - b.position)
+const params = [
+  ['Площадь', `${flat.area.toLocaleString('ru-RU')} м²`],
+  ['Кухня', flat.kitchen ? `${flat.kitchen} м²` : 'Кухня-ниша'],
+  ['Этаж', `${flat.floor} из 16`],
+  ['Башня', `${flat.tower}`],
+  ['Вид из окон', VIEW_LABEL[flat.view]],
+  ['Отделка', FINISH_LABEL[flat.finish]],
+  ['Терраса', flat.terrace ? 'Есть' : 'Нет'],
+  ['Сдача', project.deadline],
+]
+---
+
+<Base title={`${title}, ${formatPrice(flat.price)} — квартал «Сосны»`} description={`${title}, ${flat.floor} этаж, башня ${flat.tower}. ${VIEW_LABEL[flat.view]}. ${formatPrice(flat.price)}.`}>
+  <section class="section flat">
+    <div class="container">
+      <nav class="breadcrumbs" aria-label="Хлебные крошки">
+        <a href="/">Главная</a> / <a href="/flats/">Квартиры</a> / <span aria-current="page">№{flat.number}</span>
+      </nav>
+      <div class="flat__grid">
+        <div class="flat__plan" data-reveal="scale">
+          <Fragment set:html={planSvg(flat.layout, { totalArea: flat.area, title: `Планировка: ${title}` })} />
+        </div>
+        <div class="flat__info">
+          <p class="eyebrow">Квартира №{flat.number} · <span class={`status status--${flat.status}`}>{STATUS_LABEL[flat.status]}</span></p>
+          <h1 class="flat__title">{title}</h1>
+          <p class="flat__price">{formatPrice(flat.price)}</p>
+          <p class="muted">{flat.pricePerMeter.toLocaleString('ru-RU')} ₽ за м²</p>
+          <dl class="flat__params">
+            {
+              params.map(([k, v]) => (
+                <div>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+          <div class="cluster">
+            {
+              flat.status === 'free' ? (
+                <button class="btn btn--lg btn--gold" data-dialog-open="visit" data-visit-flat={`Квартира №${flat.number}: ${title}, ${formatPrice(flat.price)}`}>
+                  Забронировать
+                </button>
+              ) : (
+                <a class="btn btn--lg btn--secondary" href={`/flats/?rooms=${flat.rooms}`}>
+                  Похожие свободные
+                </a>
+              )
+            }
+            <button class="btn btn--lg btn--ghost fav-button fav-button--wide" data-favorite={flat.id} aria-pressed="false">♥ В избранное</button>
+          </div>
+          <div class="floor-scheme" aria-label={`Расположение на этаже: ${flat.position} из ${FLATS_PER_FLOOR}`}>
+            <p class="field__label">На этаже</p>
+            <div class="floor-scheme__row">
+              {
+                floorFlats.map((f) => (
+                  <a href={`/flats/${f.id}/`} class:list={['floor-scheme__cell', `chess__cell--${f.status}`, { 'is-current': f.id === flat.id }]} title={flatTitle(f)}>
+                    {ROOM_LABEL[f.rooms].slice(0, 2)}
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section mortgage-section">
+    <div class="container">
+      <h2 class="section-title" data-reveal>Ипотека на эту квартиру</h2>
+      <Mortgage price={flat.price} fixedPrice />
+    </div>
+  </section>
+  {
+    similar.length > 0 && (
+      <section class="section">
+        <div class="container">
+          <h2 class="section-title" data-reveal>Похожие квартиры</h2>
+          <div class="catalog__list" set:html={similar.map(cardHtml).join('')} />
+        </div>
+      </section>
+    )
+  }
+</Base>

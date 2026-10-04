@@ -1,0 +1,77 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Доступность и служебные состояния.
+// ═══════════════════════════════════════════════════════════════════════════
+@use '../abstracts' as *;
+
+.visually-hidden {
+  @include visually-hidden;
+}
+
+// Ссылка «Перейти к содержимому» — первая в <body>, видна только при Tab.
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: z('devtools');
+  padding: 8px 16px;
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+  border-radius: radius('sm');
+  transform: translateY(-200%);
+
+  &:focus {
+    transform: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+// Пользователь просил меньше движения — гасим анимации и переходы глобально.
+// JS-модули дополнительно проверяют ctx.reduced и не запускают GSAP.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+// Блокировка прокрутки (core/scroll-lock.js). padding-right компенсирует
+// исчезнувшую полосу прокрутки — страница не сдвигается.
+.is-scroll-locked {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+
+  body {
+    padding-right: var(--scrollbar-width, 0);
+  }
+}
+
+// ─── «Мигание» контента до анимации появления (FOUC) ──────────────────────
+// Элементы с data-reveal прячем ТОЛЬКО если JS включён (класс .js ставит
+// inline-скрипт в <head>, см. стартер). Без JS или при ошибке JS контент виден.
+// Страховка: если через 3 с модуль так и не запустился — показываем всё.
+.js [data-reveal]:not(.is-revealed) {
+  opacity: 0;
+  animation: kit-reveal-fallback 0s 3s forwards;
+}
+
+@keyframes kit-reveal-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal]:not(.is-revealed) {
+    opacity: 1;
+    animation: none;
+  }
+}

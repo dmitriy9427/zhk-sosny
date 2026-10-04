@@ -1,0 +1,64 @@
+---
+/**
+ * Расположение: схема района в SVG (река, лес, дороги) с точками инфраструктуры.
+ * Маршруты от дома к точкам «прорисовываются» при прокрутке (draw-svg кита).
+ * Координаты точек — data/project.ts → places (в процентах от схемы).
+ */
+import { places } from '../data/project'
+const HOME = { x: 50, y: 52 }
+const ICON: Record<string, string> = { park: '🌲', edu: '🎓', shop: '🛍', metro: 'Ⓜ', health: '✚' }
+---
+
+<section class="section location" id="location">
+  <div class="container location__grid">
+    <div>
+      <p class="eyebrow">Расположение</p>
+      <h2 class="section-title" data-reveal>Всё нужное — в пешей доступности</h2>
+      <ul class="location__list" data-reveal>
+        {
+          [...places]
+            .sort((a, b) => a.minutes - b.minutes)
+            .map((place) => (
+              <li>
+                <span class="location__icon" aria-hidden="true">{ICON[place.type]}</span>
+                <span>{place.title}</span>
+                <span class="location__time">{place.minutes} мин</span>
+              </li>
+            ))
+        }
+      </ul>
+    </div>
+    <div class="map" data-reveal="scale">
+      <svg class="map__svg" viewBox="0 0 100 100" role="img" aria-label="Схема района: дом, лес, река и инфраструктура" data-module="draw-svg" data-draw-svg-duration="2.4">
+        <rect width="100" height="100" fill="#ece5d6"></rect>
+        <path d="M0 14 C 18 8 30 30 8 40 L0 44 Z" fill="#b9c9a5"></path>
+        <path d="M2 4 h40 v34 h-40z" fill="#c3d3ad" opacity=".7"></path>
+        <path d="M0 88 C 25 80 45 92 70 84 S 95 78 100 82 V100 H0Z" fill="#9fc0d2"></path>
+        <path d="M0 60 H100 M48 0 V100 M74 0 L 90 100" stroke="#fff" stroke-width="2.2" fill="none"></path>
+        <path d="M0 60 H100 M48 0 V100 M74 0 L 90 100" stroke="#d8cfbd" stroke-width=".4" fill="none" stroke-dasharray="2 2"></path>
+        {
+          places.map((p) => (
+            <path
+              class="map__route"
+              data-draw
+              d={`M${HOME.x} ${HOME.y} Q ${(HOME.x + p.x) / 2 + (p.y - HOME.y) * 0.15} ${(HOME.y + p.y) / 2 - (p.x - HOME.x) * 0.15} ${p.x} ${p.y}`}
+            />
+          ))
+        }
+        {
+          places.map((p) => (
+            <g class="map__place" transform={`translate(${p.x} ${p.y})`}>
+              <circle r="3.2"></circle>
+              <text y="1.2" font-size="3.2" text-anchor="middle">{ICON[p.type]}</text>
+              <title>{p.title} — {p.minutes} мин</title>
+            </g>
+          ))
+        }
+        <g class="map__home" transform={`translate(${HOME.x} ${HOME.y})`}>
+          <circle r="6"></circle>
+          <path d="M0 -3.6l3 4.2h-1.8l2.2 3.2h-6.8l2.2-3.2h-1.8z" fill="#fff"></path>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>

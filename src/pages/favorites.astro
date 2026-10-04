@@ -1,0 +1,39 @@
+---
+/** Избранное: список хранится в браузере (localStorage) — рисуем на клиенте. */
+import Base from '../layouts/Base.astro'
+import { FLATS } from '../data/flats'
+---
+
+<Base title="Избранные квартиры — квартал «Сосны»">
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Избранное</p>
+      <h1 class="section-title">Избранные квартиры</h1>
+      <div class="catalog__list" data-favorites-list></div>
+      <div class="empty" data-favorites-empty hidden>
+        <p class="lead">Здесь пока пусто. Нажмите ♥ на понравившейся квартире.</p>
+        <a class="btn btn--lg" href="/flats/">Выбрать квартиру</a>
+      </div>
+    </div>
+    <script type="application/json" id="all-flats" set:html={JSON.stringify(FLATS)} />
+  </section>
+</Base>
+
+<script>
+  import { cardHtml } from '../lib/card'
+  import { getFavorites, syncFavorites } from '../modules/favorites/index'
+  import type { Flat } from '../data/flats'
+
+  const flats: Flat[] = JSON.parse(document.getElementById('all-flats')?.textContent ?? '[]')
+  const list = document.querySelector<HTMLElement>('[data-favorites-list]')!
+  const empty = document.querySelector<HTMLElement>('[data-favorites-empty]')!
+  function render() {
+    const ids = getFavorites()
+    const items = flats.filter((f) => ids.includes(f.id))
+    list.innerHTML = items.map(cardHtml).join('')
+    empty.hidden = items.length > 0
+    syncFavorites()
+  }
+  render()
+  document.addEventListener('favorites:change', render)
+</script>

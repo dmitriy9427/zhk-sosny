@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+.tmp
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example
+# Типы, которые Astro генерирует сам
+.astro

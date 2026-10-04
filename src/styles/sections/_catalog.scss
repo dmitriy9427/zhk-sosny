@@ -1,0 +1,430 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Каталог (/flats/): фильтры, список карточек, шахматка.
+// Страница квартиры (/flats/<id>/): план, параметры, схема этажа.
+//
+// Цвета комнатности — переменные ниже: шахматка, легенда и схема этажа
+// берут их отсюда, менять в одном месте.
+// ═══════════════════════════════════════════════════════════════════════════
+@use 'abstracts' as *;
+
+:root {
+  --room-0: #d8c49c;
+  --room-1: #a9bf9a;
+  --room-2: #6f9078;
+  --room-3: #3e5e4a;
+}
+
+// ─── Фильтры ───────────────────────────────────────────────────────────────
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: space(6);
+  padding: fluid(20px, 32px);
+  margin-bottom: space(8);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: radius('lg');
+}
+
+.filters__group {
+  display: grid;
+  gap: space(3);
+  align-content: start;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: space(3);
+  }
+}
+
+.filters__checks {
+  gap: space(2);
+}
+
+.filters__bar {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: space(4);
+  align-items: center;
+  padding-top: space(5);
+  border-top: 1px solid var(--color-border);
+
+  // .select кита — width: 100%; в ряду с кнопкой ему нужна своя ширина.
+  .select {
+    width: rem(260px);
+  }
+}
+
+.filters__count {
+  margin-right: auto;
+  font-size: rem(18px);
+
+  strong {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ─── Список ────────────────────────────────────────────────────────────────
+.catalog__views .tabs__list {
+  margin-bottom: space(2);
+}
+
+.catalog__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: space(5);
+}
+
+.catalog__more {
+  display: flex;
+  margin: space(10) auto 0;
+}
+
+.flat-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: radius('lg');
+  transition:
+    transform var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease);
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+  }
+
+  &--sold,
+  &--booked {
+    .flat-card__plan {
+      opacity: 0.55;
+    }
+  }
+}
+
+// Ссылка растянута на всю карточку, кнопка ♥ — над ней (z-index).
+.flat-card__link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+
+  &:focus-visible {
+    @include focus-ring(-3px);
+  }
+}
+
+.flat-card__plan {
+  padding: space(4);
+  background: var(--color-bg);
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: contain;
+  }
+}
+
+.flat-card__body {
+  display: grid;
+  gap: space(2);
+  align-content: start;
+  padding: space(5);
+}
+
+.flat-card__meta {
+  font-size: rem(13px);
+  color: var(--color-muted);
+}
+
+.flat-card__title {
+  font-family: var(--font-base);
+  font-size: rem(19px);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.flat-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(1);
+
+  span {
+    padding: 2px space(2);
+    font-size: rem(12px);
+    color: var(--color-muted);
+    background: var(--color-bg);
+    border-radius: radius('pill');
+  }
+}
+
+.flat-card__price {
+  margin-top: space(2);
+  font-size: rem(22px);
+  font-weight: 700;
+  color: var(--color-accent);
+
+  small {
+    display: block;
+    font-size: rem(12px);
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+}
+
+.flat-card__status {
+  position: absolute;
+  top: space(3);
+  left: space(3);
+  padding: 2px space(2);
+  font-size: rem(12px);
+  font-weight: 600;
+  color: var(--color-success);
+  background: #fff;
+  border-radius: radius('pill');
+
+  .flat-card--booked & {
+    color: var(--color-warning);
+  }
+
+  .flat-card--sold & {
+    color: var(--color-muted);
+  }
+}
+
+.flat-card__fav {
+  @include reset-button;
+
+  position: absolute;
+  top: space(2);
+  right: space(2);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: rem(40px);
+  height: rem(40px);
+  font-size: rem(18px);
+  color: var(--color-muted);
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  transition:
+    color var(--duration),
+    transform var(--duration) var(--ease);
+
+  @include hover {
+    transform: scale(1.1);
+  }
+}
+
+// ─── Шахматка ──────────────────────────────────────────────────────────────
+.chess-legend {
+  @include reset-list;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(2) space(5);
+  margin-bottom: space(6);
+  font-size: rem(14px);
+  color: var(--color-muted);
+
+  li {
+    display: flex;
+    gap: space(2);
+    align-items: center;
+  }
+
+  .chess__cell {
+    width: rem(16px);
+    height: rem(16px);
+  }
+}
+
+.chess {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: space(8);
+}
+
+.chess__name {
+  margin-bottom: space(3);
+  font-family: var(--font-heading);
+  font-size: rem(22px);
+}
+
+.chess__grid {
+  display: grid;
+  grid-template-columns: rem(24px) repeat(var(--cols), 1fr);
+  gap: 4px;
+}
+
+.chess__floor {
+  display: grid;
+  place-items: center;
+  font-size: rem(11px);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chess__cell {
+  display: grid;
+  place-items: center;
+  min-height: rem(28px);
+  font-size: rem(11px);
+  font-weight: 600;
+  color: var(--color-forest);
+  text-decoration: none;
+  background: var(--room-0);
+  border-radius: 4px;
+  transition:
+    opacity var(--duration),
+    transform var(--duration) var(--ease);
+
+  &--r1 {
+    background: var(--room-1);
+  }
+
+  &--r2 {
+    color: #fff;
+    background: var(--room-2);
+  }
+
+  &--r3 {
+    color: #fff;
+    background: var(--room-3);
+  }
+
+  &--booked {
+    background-image: repeating-linear-gradient(-45deg, transparent 0 3px, rgb(255 255 255 / 45%) 3px 5px);
+  }
+
+  &--sold {
+    color: var(--color-muted);
+    background: var(--color-border);
+  }
+
+  @at-root a#{&} {
+    @include hover {
+      z-index: 1;
+      box-shadow: 0 0 0 2px var(--color-gold);
+      transform: scale(1.15);
+    }
+  }
+}
+
+// Фильтр применён: не подходящие квартиры приглушены (is-match — у подходящих).
+.catalog.is-filtered [data-flat-cell]:not(.is-match) {
+  opacity: 0.18;
+}
+
+// ─── Страница квартиры ─────────────────────────────────────────────────────
+.flat__grid {
+  display: grid;
+  gap: space(10);
+  align-items: start;
+
+  @include up('lg') {
+    grid-template-columns: 7fr 5fr;
+  }
+}
+
+.flat__plan {
+  padding: fluid(16px, 40px);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: radius('lg');
+
+  @include up('lg') {
+    position: sticky;
+    top: calc(var(--header-height) + #{space(6)});
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.flat__info {
+  display: grid;
+  gap: space(3);
+
+  .cluster {
+    margin-top: space(4);
+  }
+}
+
+.flat__title {
+  font-size: fluid(32px, 48px);
+  line-height: 1.1;
+}
+
+.flat__price {
+  margin-top: space(2);
+  font-size: fluid(28px, 40px);
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.flat__params {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: space(4) space(6);
+  padding-block: space(6);
+  margin: space(4) 0 0;
+  border-block: 1px solid var(--color-border);
+
+  dt {
+    font-size: rem(13px);
+    color: var(--color-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.floor-scheme {
+  margin-top: space(6);
+}
+
+.floor-scheme__row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  margin-top: space(2);
+}
+
+.floor-scheme__cell {
+  display: grid;
+  place-items: center;
+  min-height: rem(40px);
+  font-size: rem(12px);
+  font-weight: 600;
+  color: var(--color-forest);
+  text-decoration: none;
+  background: var(--room-1);
+  border-radius: 6px;
+
+  &.chess__cell--sold {
+    color: var(--color-muted);
+    background: var(--color-border);
+  }
+
+  &.is-current {
+    color: var(--color-forest);
+    background: var(--color-gold);
+    box-shadow: 0 0 0 2px var(--color-forest);
+  }
+}

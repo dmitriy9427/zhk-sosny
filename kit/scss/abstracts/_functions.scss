@@ -1,0 +1,78 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Функции. Ничего не выводят в CSS — только считают значения.
+// ═══════════════════════════════════════════════════════════════════════════
+@use 'sass:map';
+@use 'sass:math';
+@use 'sass:meta';
+@use '../config' as *;
+
+/// Пиксели → rem. rem(24px) → 1.5rem; rem(24) тоже можно.
+/// Зачем rem: если пользователь увеличил шрифт в браузере, вёрстка
+/// масштабируется вместе с ним (доступность).
+@function rem($px) {
+  @if math.is-unitless($px) {
+    $px: $px * 1px;
+  }
+  @if math.unit($px) != 'px' {
+    @error 'rem() ждёт пиксели, получено #{$px}';
+  }
+  @return math.div($px, $root-font-size) * 1rem;
+}
+
+/// Отступ по шкале: space(4) → 1rem (16px при $space-unit: 4px).
+@function space($n) {
+  @return rem($space-unit * $n);
+}
+
+/// Плавное значение: $min на ширине $from, $max на ширине $to, между — линейно.
+///   font-size: fluid(28px, 56px);          // от 360px до 1440px экрана
+///   padding: fluid(16px, 40px, 768px, 1280px);
+/// Результат — clamp(), без медиазапросов. Порядок аргументов важен:
+/// если $min > $max, получится «обратное» значение (меньше на больших экранах) —
+/// это законно (например, для межстрочного интервала).
+@function fluid($min, $max, $from: 360px, $to: 1440px) {
+  @if $from >= $to {
+    @error 'fluid(): $from (#{$from}) должен быть меньше $to (#{$to})';
+  }
+  $slope: math.div($max - $min, $to - $from);
+  $intercept: $min - $slope * $from;
+  $lo: math.min($min, $max);
+  $hi: math.max($min, $max);
+  @return clamp(#{rem($lo)}, #{rem($intercept)} + #{math.div(math.round($slope * 10000), 100) * 1vw}, #{rem($hi)});
+}
+
+/// Цвет как CSS-переменная: color('accent') → var(--color-accent).
+/// Ошибка при опечатке — лучше, чем молча прозрачный текст.
+@function color($name) {
+  @if not map.has-key($colors, $name) {
+    @error 'Нет цвета «#{$name}». Есть: #{map.keys($colors)}';
+  }
+  @return var(--color-#{$name});
+}
+
+/// Слой z-index: z('header') → 200.
+@function z($layer) {
+  @if not map.has-key($z-layers, $layer) {
+    @error 'Нет слоя «#{$layer}». Есть: #{map.keys($z-layers)}. Добавьте его в $z-layers.';
+  }
+  @return map.get($z-layers, $layer);
+}
+
+/// Скругление: radius('md') → var(--radius-md).
+@function radius($name) {
+  @if not map.has-key($radius, $name) {
+    @error 'Нет скругления «#{$name}». Есть: #{map.keys($radius)}';
+  }
+  @return var(--radius-#{$name});
+}
+
+/// Значение брейкпоинта: bp('md') → 768px.
+@function bp($name) {
+  @if meta.type-of($name) == 'number' {
+    @return $name;
+  }
+  @if not map.has-key($breakpoints, $name) {
+    @error 'Нет брейкпоинта «#{$name}». Есть: #{map.keys($breakpoints)}';
+  }
+  @return map.get($breakpoints, $name);
+}

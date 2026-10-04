@@ -1,0 +1,61 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// CSS-переменные на :root — из SCSS-настроек.
+// Зачем дублировать в CSS-переменные: их можно менять «на лету» (тёмная тема,
+// внутри блока), и их видит JS (брейкпоинты, высота шапки).
+// ═══════════════════════════════════════════════════════════════════════════
+@use 'sass:map';
+@use '../abstracts' as *;
+
+@mixin -color-vars($map) {
+  @each $name, $value in $map {
+    --color-#{$name}: #{$value};
+  }
+}
+
+:root {
+  @include -color-vars($colors);
+
+  color-scheme: light;
+
+  @each $name, $value in $breakpoints {
+    --bp-#{$name}: #{$value};
+  }
+
+  @each $name, $value in $radius {
+    --radius-#{$name}: #{$value};
+  }
+
+  @each $name, $value in $shadow {
+    --shadow-#{$name}: #{$value};
+  }
+
+  --font-base: #{$font-base};
+  --font-heading: #{$font-heading};
+  --font-mono: #{$font-mono};
+  --ease: #{$ease};
+  --duration: #{$duration};
+  --container-padding: #{fluid($container-padding-min, $container-padding-max)};
+  --grid-gap: #{rem($grid-gap)};
+  --grid-columns: #{$grid-columns};
+  --container-max: #{$container-max};
+
+  // Высота фиксированной шапки: якоря учитывают её (scroll-margin-top ниже и
+  // smooth-scroll.js). Модуль sticky-header обновляет её по факту.
+  --header-height: 0px;
+}
+
+// Тёмная тема: явный выбор пользователя (data-theme="dark")…
+:root[data-theme='dark'] {
+  @include -color-vars($colors-dark);
+
+  color-scheme: dark;
+}
+
+// …или системная настройка, если пользователь ничего не выбирал.
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @include -color-vars($colors-dark);
+
+    color-scheme: dark;
+  }
+}

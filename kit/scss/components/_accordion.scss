@@ -1,0 +1,62 @@
+// Аккордеон (модуль accordion). Высота анимируется через grid-template-rows:
+// 0fr → 1fr — без замеров в JS, работает с любым содержимым.
+@use '../abstracts' as *;
+
+.accordion {
+  border-top: 1px solid var(--color-border);
+}
+
+.accordion__item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.accordion__trigger {
+  @include reset-button;
+
+  display: flex;
+  gap: space(4);
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: space(5) 0;
+  font-weight: 600;
+  text-align: left;
+
+  // Плюс, превращающийся в минус.
+  &::after {
+    flex-shrink: 0;
+    width: rem(12px);
+    height: rem(12px);
+    content: '';
+    background:
+      linear-gradient(currentcolor 0 0) center / 100% 2px no-repeat,
+      linear-gradient(currentcolor 0 0) center / 2px 100% no-repeat;
+    transition: transform var(--duration) var(--ease);
+  }
+
+  [data-open] > * > &::after,
+  [data-open] > &::after {
+    transform: rotate(45deg);
+  }
+}
+
+.accordion__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--duration) var(--ease);
+
+  [data-open] > & {
+    grid-template-rows: 1fr;
+  }
+}
+
+// Обязательная внутренняя обёртка: min-height: 0 + overflow: hidden дают
+// grid-строке сжаться до нуля.
+.accordion__inner {
+  min-height: 0;
+  overflow: hidden;
+
+  > :last-child {
+    margin-bottom: space(5);
+  }
+}

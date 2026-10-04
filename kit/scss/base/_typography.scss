@@ -1,0 +1,88 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Типографика: плавные размеры заголовков без медиазапросов (fluid()).
+// Классы .h1….h4 — чтобы оформить текст как заголовок, не меняя тег
+// (тег выбирается по смыслу для SEO и скринридеров, вид — классом).
+// ═══════════════════════════════════════════════════════════════════════════
+@use '../abstracts' as *;
+
+body {
+  font-family: var(--font-base);
+  font-size: rem(16px);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+h1,
+.h1 {
+  font-size: fluid(32px, 64px);
+  letter-spacing: -0.02em;
+}
+
+h2,
+.h2 {
+  font-size: fluid(26px, 44px);
+  letter-spacing: -0.01em;
+}
+
+h3,
+.h3 {
+  font-size: fluid(20px, 28px);
+}
+
+h4,
+.h4 {
+  font-size: fluid(18px, 22px);
+}
+
+.lead {
+  font-size: fluid(17px, 21px);
+  color: var(--color-muted);
+}
+
+.small {
+  font-size: rem(14px);
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+// Текст из CMS (статьи): отступы между элементами без классов.
+.prose {
+  max-width: 70ch; // 60–75 символов в строке — комфортное чтение
+
+  > * + * {
+    margin-top: 1em;
+  }
+
+  > :is(h2, h3, h4) {
+    margin-top: 1.6em;
+  }
+
+  ul,
+  ol {
+    padding-left: 1.4em;
+  }
+
+  img {
+    border-radius: radius('md');
+  }
+
+  a {
+    color: var(--color-accent);
+    text-underline-offset: 0.2em;
+  }
+}

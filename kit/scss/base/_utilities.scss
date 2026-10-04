@@ -1,0 +1,54 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Утилиты-классы. Их немного намеренно: для разовой раскладки удобнее
+// классы, но оформление компонентов пишите в их собственных файлах.
+// ═══════════════════════════════════════════════════════════════════════════
+@use '../abstracts' as *;
+
+.container {
+  @include container;
+}
+
+// Вертикальный ритм секций.
+.section {
+  padding-block: fluid(48px, 120px);
+}
+
+// Стопка элементов с одинаковым отступом: <div class="stack" style="--gap: 24px">
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap, #{space(4)});
+}
+
+// Ряд с переносом.
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap, #{space(3)});
+  align-items: center;
+}
+
+// Адаптивная сетка карточек без медиазапросов: колонок столько, сколько
+// влезает при минимальной ширине --min. min(…, 100%) не даёт карточке
+// вылезти за экран на очень узких телефонах.
+.auto-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--min, 280px), 100%), 1fr));
+  gap: var(--gap, var(--grid-gap));
+}
+
+.full-bleed {
+  @include full-bleed;
+}
+
+.cover {
+  @include object-cover;
+}
+
+.line-clamp-2 {
+  @include line-clamp(2);
+}
+
+.line-clamp-3 {
+  @include line-clamp(3);
+}

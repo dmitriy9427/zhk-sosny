@@ -1,0 +1,278 @@
+// Кастомный селект (модуль select). Настоящий <select> скрыт визуально,
+// но остаётся в форме.
+@use '../abstracts' as *;
+
+.select__native {
+  @include visually-hidden;
+}
+
+.select {
+  position: relative;
+  width: 100%;
+}
+
+.select__control {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: space(1);
+  align-items: center;
+  min-height: rem(48px);
+  padding: space(1) rem(64px) space(1) space(4);
+  cursor: pointer;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: radius('md');
+  transition:
+    border-color var(--duration),
+    box-shadow var(--duration);
+
+  .is-open &,
+  &:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 25%, transparent);
+  }
+
+  .is-invalid & {
+    border-color: var(--color-danger);
+  }
+
+  .is-disabled & {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.select__input {
+  flex: 1;
+  min-width: rem(60px);
+  padding: space(2) 0;
+  font: inherit;
+  color: var(--color-text);
+  cursor: inherit;
+  background: none;
+  border: 0;
+  outline: none;
+
+  &::placeholder {
+    color: var(--color-muted);
+  }
+
+  // Есть выбранное значение — текст поля поверх него не нужен.
+  .select:not(.select--multiple).has-value &:read-only {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+}
+
+.select__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:empty {
+    display: none;
+  }
+
+  // Одиночный выбор с поиском: значение — подсказкой, пока ищем.
+  .select:not(.select--multiple) & {
+    flex: 1;
+  }
+
+  .is-open .select__input:not(:read-only) ~ & {
+    display: none;
+  }
+}
+
+.select__chips {
+  @include reset-list;
+
+  display: contents;
+}
+
+.select__chip {
+  display: inline-flex;
+  gap: space(1);
+  align-items: center;
+  max-width: 100%;
+  padding: 2px space(1) 2px space(3);
+  font-size: rem(14px);
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+  border-radius: radius('pill');
+  animation: kit-chip-in 0.18s var(--ease);
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.select__chip-remove,
+.select__clear {
+  @include reset-button;
+
+  display: grid;
+  place-items: center;
+  width: rem(22px);
+  height: rem(22px);
+  font-size: rem(16px);
+  line-height: 1;
+  border-radius: 50%;
+
+  @include hover {
+    color: var(--color-danger);
+    background: var(--color-surface);
+  }
+}
+
+.select__clear {
+  position: absolute;
+  top: 50%;
+  right: rem(36px);
+  transform: translateY(-50%);
+}
+
+.select__arrow {
+  position: absolute;
+  top: 50%;
+  right: space(4);
+  width: rem(8px);
+  height: rem(8px);
+  pointer-events: none;
+  border-right: 2px solid currentcolor;
+  border-bottom: 2px solid currentcolor;
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform var(--duration) var(--ease);
+
+  .is-open & {
+    transform: translateY(-30%) rotate(-135deg);
+  }
+}
+
+// Выпадающий список. Открывается в «верхнем слое» (popover) — не обрезается
+// модалками и overflow: hidden, не спорит с z-index. Позицию ставит JS.
+.select__dropdown {
+  z-index: z('dialog') + 10; // если браузер без popover
+  display: none;
+  max-height: rem(320px);
+  padding: space(1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: radius('md');
+  box-shadow: var(--shadow-lg);
+
+  // Сброс стилей popover по умолчанию (рамка, отступы, центрирование).
+  &[popover] {
+    inset: auto;
+  }
+
+  .is-open & {
+    display: block;
+    animation: kit-select-in 0.16s var(--ease);
+  }
+
+  .is-up & {
+    animation-name: kit-select-in-up;
+  }
+}
+
+.select__list {
+  @include reset-list;
+}
+
+.select__group {
+  padding: space(2) space(3) space(1);
+  font-size: rem(12px);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.select__option {
+  position: relative;
+  padding: space(2) space(3);
+  padding-right: space(8);
+  cursor: pointer;
+  border-radius: radius('sm');
+
+  &.is-active {
+    background: var(--color-surface);
+  }
+
+  &[aria-selected='true'] {
+    font-weight: 600;
+    color: var(--color-accent);
+
+    // Галочка выбранного варианта.
+    &::after {
+      position: absolute;
+      top: 50%;
+      right: space(3);
+      width: rem(6px);
+      height: rem(11px);
+      content: '';
+      border-right: 2px solid currentcolor;
+      border-bottom: 2px solid currentcolor;
+      transform: translateY(-60%) rotate(45deg);
+    }
+  }
+
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+
+  mark {
+    color: inherit;
+    background: color-mix(in srgb, var(--color-accent) 25%, transparent);
+    border-radius: 2px;
+  }
+}
+
+.select__empty {
+  padding: space(3);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.select.is-loading .select__arrow {
+  width: rem(14px);
+  height: rem(14px);
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: kit-spin 0.7s linear infinite;
+}
+
+@keyframes kit-select-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes kit-select-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes kit-chip-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes kit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

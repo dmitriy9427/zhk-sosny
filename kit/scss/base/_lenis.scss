@@ -1,0 +1,26 @@
+// Стили, которые требует Lenis (плавный скролл). Без них ломаются якоря
+// и вложенная прокрутка. Источник: документация Lenis.
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+// Имя класса задаёт Lenis — не по нашему БЭМ, поэтому правило отключено точечно.
+/* stylelint-disable-next-line selector-class-pattern */
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+// Нативный scroll-behavior: smooth конфликтует с Lenis (двойное сглаживание).
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+// Блоки со своей прокруткой (data-lenis-prevent) не передают её странице.
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}

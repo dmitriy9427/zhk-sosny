@@ -1,0 +1,93 @@
+// Слайдер на scroll-snap (модуль slider). Настройка — CSS-переменными:
+//   .slider { --slide-width: 85%; --slide-gap: 16px; }
+//   @include up('md') { .slider { --slide-width: calc((100% - 2 * var(--slide-gap)) / 3); } }
+@use '../abstracts' as *;
+
+.slider {
+  --slide-width: 85%;
+  --slide-gap: #{space(4)};
+
+  position: relative;
+}
+
+.slider__track {
+  @include scrollbar-hidden;
+
+  display: flex;
+  gap: var(--slide-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain; // свайп по слайдеру не листает историю браузера
+  scroll-snap-type: x mandatory;
+
+  .is-dragging & {
+    cursor: grabbing;
+    user-select: none;
+    scroll-snap-type: none; // иначе при перетаскивании «прилипает» к каждому слайду
+  }
+}
+
+.slider__slide,
+.slider__track > * {
+  flex: 0 0 var(--slide-width);
+  min-width: 0; // длинные слова/картинки не раздувают слайд
+  scroll-snap-align: start;
+}
+
+.slider__nav {
+  display: flex;
+  gap: space(2);
+  align-items: center;
+  margin-top: space(4);
+
+  .is-static & {
+    display: none;
+  }
+}
+
+.slider__arrow {
+  @include reset-button;
+
+  display: grid;
+  place-items: center;
+  width: rem(44px);
+  height: rem(44px);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
+}
+
+.slider__dots {
+  display: flex;
+  gap: space(2);
+  margin-inline: auto;
+}
+
+.slider__dot {
+  @include reset-button;
+
+  width: rem(8px);
+  height: rem(8px);
+  background: var(--color-border);
+  border-radius: 50%;
+  transition:
+    background-color var(--duration),
+    transform var(--duration);
+
+  // Зона нажатия больше самой точки.
+  position: relative;
+
+  &::after {
+    position: absolute;
+    inset: -8px;
+    content: '';
+  }
+
+  &[aria-current='true'] {
+    background: var(--color-accent);
+    transform: scale(1.3);
+  }
+}

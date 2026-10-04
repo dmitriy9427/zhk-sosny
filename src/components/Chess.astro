@@ -1,0 +1,38 @@
+---
+/**
+ * «Шахматка»: все квартиры по башням и этажам. Цвет — число комнат, приглушённые
+ * — не подходят под фильтр (класс is-match ставит модуль catalog), проданные
+ * — серые. Ячейка — ссылка на страницу квартиры, подсказка — title.
+ */
+import { FLATS, FLATS_PER_FLOOR, FLOORS, ROOM_SHORT, STATUS_LABEL, TOWERS, formatPrice } from '../data/flats'
+const floors = Array.from({ length: FLOORS - 1 }, (_, i) => FLOORS - i)
+---
+
+<div class="chess" data-catalog-chess>
+  {
+    Array.from({ length: TOWERS }, (_, t) => t + 1).map((tower) => (
+      <div class="chess__tower">
+        <p class="chess__name">Башня {tower}</p>
+        <div class="chess__grid" style={`--cols: ${FLATS_PER_FLOOR}`}>
+          {floors.map((floor) => (
+            <>
+              <span class="chess__floor">{floor}</span>
+              {FLATS.filter((f) => f.tower === tower && f.floor === floor)
+                .sort((a, b) => a.position - b.position)
+                .map((f) => (
+                  <a
+                    class={`chess__cell chess__cell--r${f.rooms} chess__cell--${f.status}`}
+                    href={`/flats/${f.id}/`}
+                    data-flat-cell={f.id}
+                    title={`${f.rooms === 0 ? 'Студия' : `${f.rooms}-к`}, ${f.area} м², ${formatPrice(f.price)} — ${STATUS_LABEL[f.status]}`}
+                  >
+                    {ROOM_SHORT[f.rooms]}
+                  </a>
+                ))}
+            </>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</div>

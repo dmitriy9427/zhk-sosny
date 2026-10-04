@@ -1,0 +1,16 @@
+{
+  // Строгий TypeScript для Astro (.astro и .ts). Кит — JS с JSDoc, его типы
+  // берутся из комментариев. Проверка: npx astro check.
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "types": ["node"],
+    "paths": {
+      "kit/*": ["./kit/*"],
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [".astro/types.d.ts", "src", "./kit/types/*.d.ts"],
+  "exclude": ["dist"]
+}

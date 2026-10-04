@@ -1,0 +1,32 @@
+---
+/** Типы квартир «от N ₽» — ссылки в каталог с готовым фильтром. */
+import { ROOM_LABEL, formatPrice, summary } from '../data/flats'
+import { plural } from 'kit/js/form/schema.js'
+const items = summary()
+const layouts = ['studio', 'one', 'two', 'three']
+---
+
+<section class="section summary" id="flats">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Квартиры</p>
+      <h2 class="section-title" data-reveal>Выберите свою планировку</h2>
+    </div>
+    <ul class="summary__grid" data-module="reveal">
+      {
+        items.map((item, i) => (
+          <li class="summary__item" data-reveal>
+            <a href={`/flats/?rooms=${item.rooms}`} class="summary__link" data-cursor="Смотреть">
+              <img class="summary__plan" src={`/plans/${layouts[i]}.svg`} alt="" width="300" height="200" loading="lazy" />
+              <span class="summary__title">{item.rooms === 0 ? 'Студии' : ROOM_LABEL[item.rooms].replace('комнатная', 'комнатные')}</span>
+              <span class="summary__meta">
+                от {item.areaFrom.toLocaleString('ru-RU')} м² · {item.count} {plural(item.count, ['свободная', 'свободные', 'свободных'])}
+              </span>
+              <span class="summary__price">от {formatPrice(item.priceFrom)}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

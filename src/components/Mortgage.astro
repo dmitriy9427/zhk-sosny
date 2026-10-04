@@ -1,0 +1,54 @@
+---
+/**
+ * Ипотечный калькулятор (модуль mortgage). price — стоимость по умолчанию
+ * (на странице квартиры — её цена). Программы и ставки — data/project.ts.
+ */
+import { mortgagePrograms } from '../data/project'
+interface Props {
+  price?: number
+  fixedPrice?: boolean
+}
+const { price = 12_000_000, fixedPrice = false } = Astro.props
+---
+
+<form class="mortgage" data-module="mortgage" novalidate>
+  <div class="mortgage__controls">
+    <fieldset class="mortgage__programs">
+      <legend class="field__label">Программа</legend>
+      {
+        mortgagePrograms.map((program, i) => (
+          <label class="pill">
+            <input type="radio" name="program" value={program.id} checked={i === 0} />
+            <span>
+              {program.title} <small>{program.rate} %</small>
+            </span>
+          </label>
+        ))
+      }
+    </fieldset>
+    <label class="mortgage__field">
+      <span class="mortgage__label">Стоимость квартиры <output data-out="price"></output></span>
+      <input class="range-input" type="range" name="price" min="3000000" max="30000000" step="100000" value={price} disabled={fixedPrice} />
+    </label>
+    <label class="mortgage__field">
+      <span class="mortgage__label">Первоначальный взнос <output data-out="down"></output></span>
+      <input class="range-input" type="range" name="down" min="20" max="90" step="1" value="30" />
+    </label>
+    <label class="mortgage__field">
+      <span class="mortgage__label">Срок <output data-out="years"></output></span>
+      <input class="range-input" type="range" name="years" min="1" max="30" step="1" value="25" />
+    </label>
+  </div>
+  <div class="mortgage__result">
+    <p class="mortgage__caption">Ежемесячный платёж</p>
+    <p class="mortgage__monthly" data-out="monthly">—</p>
+    <dl class="mortgage__details">
+      <div><dt>Ставка</dt><dd data-out="rate"></dd></div>
+      <div><dt>Сумма кредита</dt><dd data-out="loan"></dd></div>
+      <div><dt>Переплата</dt><dd data-out="overpayment"></dd></div>
+      <div><dt>Рекомендуемый доход</dt><dd data-out="income"></dd></div>
+    </dl>
+    <button class="btn btn--gold btn--lg" type="button" data-dialog-open="visit">Получить одобрение</button>
+    <p class="mortgage__note">Расчёт примерный и не является офертой.</p>
+  </div>
+</form>

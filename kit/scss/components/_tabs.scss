@@ -1,0 +1,40 @@
+// Табы (модуль tabs).
+@use '../abstracts' as *;
+
+.tabs__list {
+  @include scrollbar-hidden;
+
+  display: flex;
+  gap: space(1);
+  // На узком экране вкладки прокручиваются, а не переносятся в две строки.
+  overflow-x: auto;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tabs__tab {
+  @include reset-button;
+
+  flex-shrink: 0;
+  padding: space(3) space(4);
+  margin-bottom: -1px;
+  color: var(--color-muted);
+  border-bottom: 2px solid transparent;
+  transition: color var(--duration);
+
+  @include hover {
+    color: var(--color-text);
+  }
+
+  &[aria-selected='true'] {
+    color: var(--color-text);
+    border-bottom-color: var(--color-accent);
+  }
+}
+
+.tabs__panel {
+  padding-top: space(6);
+
+  &:focus-visible {
+    outline-offset: 4px;
+  }
+}

@@ -1,0 +1,117 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Настройки кита. ВСЕ переменные с !default — их можно переопределить
+// в проекте, не трогая кит:
+//
+//   // src/styles/_kit.scss проекта
+//   @forward 'kit/scss/abstracts' with (
+//     $colors: ('accent': #ff5a1f),
+//     $font-base: 'Inter',
+//   );
+//
+// Карты ($colors, $breakpoints…) СЛИВАЮТСЯ с картами по умолчанию:
+// достаточно указать только то, что меняете (см. функцию merge ниже).
+// ═══════════════════════════════════════════════════════════════════════════
+@use 'sass:map';
+
+// ─── Брейкпоинты (mobile-first: «от этой ширины и шире») ─────────────────────
+// Один источник правды и для CSS, и для JS: выводятся в --bp-* (base/_root.scss),
+// JS читает их через getBreakpoints(). Менять ТОЛЬКО здесь.
+$breakpoints: () !default;
+$breakpoints-defaults: (
+  'sm': 576px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1280px,
+  'xxl': 1440px,
+);
+
+// ─── Цвета ──────────────────────────────────────────────────────────────────
+// Это «светлая» тема. Тёмная — $colors-dark (только отличающиеся значения).
+// В CSS попадают как --color-<имя>; в коде используйте var(--color-accent)
+// или функцию color('accent').
+$colors: () !default;
+$colors-defaults: (
+  'bg': #fff,
+  'surface': #f4f5f7,
+  'text': #14161a,
+  'muted': #5d6470,
+  'border': #dde0e5,
+  'accent': #3b5bff,
+  'accent-contrast': #fff,
+  'success': #1f9d55,
+  'warning': #c77700,
+  'danger': #d92d20,
+  'focus': #3b5bff,
+);
+
+$colors-dark: () !default;
+$colors-dark-defaults: (
+  'bg': #0f1115,
+  'surface': #191c22,
+  'text': #eceef2,
+  'muted': #9aa1ad,
+  'border': #2b2f37,
+  'accent': #7d93ff,
+  'accent-contrast': #0f1115,
+  'focus': #7d93ff,
+);
+
+// ─── Шрифты ─────────────────────────────────────────────────────────────────
+$font-base:
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  roboto,
+  sans-serif !default;
+$font-heading: $font-base !default;
+$font-mono: ui-monospace, 'SFMono-Regular', menlo, monospace !default;
+// Базовый размер шрифта браузера. rem() считает от него. НЕ ставьте
+// html { font-size: 62.5% } — это ломает пользовательский масштаб шрифта.
+$root-font-size: 16px !default;
+
+// ─── Сетка и отступы ─────────────────────────────────────────────────────────
+$container-max: 1280px !default;
+// Поля контейнера: на мобилке 16px, плавно до 40px на десктопе.
+$container-padding-min: 16px !default;
+$container-padding-max: 40px !default;
+$grid-columns: 12 !default;
+$grid-gap: 24px !default;
+
+// Шкала отступов: space(4) → 16px. Кратна 4.
+$space-unit: 4px !default;
+
+// ─── Скругления, тени, анимации ─────────────────────────────────────────────
+$radius: (
+  'sm': 6px,
+  'md': 12px,
+  'lg': 20px,
+  'pill': 999px,
+) !default;
+$shadow: (
+  'sm': 0 1px 2px rgb(0 0 0 / 6%),
+  'md': 0 6px 20px rgb(0 0 0 / 10%),
+  'lg': 0 20px 50px rgb(0 0 0 / 16%),
+) !default;
+$ease: cubic-bezier(0.22, 1, 0.36, 1) !default;
+$duration: 0.3s !default;
+
+// ─── Слои z-index ────────────────────────────────────────────────────────────
+// Все z-index проекта — только через z('header'). Тогда не будет войн
+// «z-index: 99999», и видно, что над чем. Новый слой — добавьте сюда.
+$z-layers: () !default;
+$z-layers-defaults: (
+  'below': -1,
+  'base': 1,
+  'sticky': 100,
+  'header': 200,
+  'menu': 300,
+  'dialog': 400,
+  'toast': 500,
+  'devtools': 9000,
+);
+
+// ─── Слияние: значения проекта поверх значений по умолчанию ─────────────────
+$breakpoints: map.merge($breakpoints-defaults, $breakpoints);
+$colors: map.merge($colors-defaults, $colors);
+$colors-dark: map.merge($colors-dark-defaults, $colors-dark);
+$z-layers: map.merge($z-layers-defaults, $z-layers);

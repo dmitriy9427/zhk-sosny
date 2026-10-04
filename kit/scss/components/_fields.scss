@@ -1,0 +1,355 @@
+// Поля формы: чекбоксы/радио, select, пароль, счётчик символов, степпер,
+// загрузка файлов. Базовые .field / .field__input — в _misc.scss.
+@use '../abstracts' as *;
+
+.field__hint {
+  font-size: rem(13px);
+  color: var(--color-muted);
+}
+
+// Поле с кнопкой внутри (показать пароль, очистить).
+.field__control {
+  position: relative;
+  display: flex;
+
+  .field__input {
+    padding-right: rem(48px);
+  }
+}
+
+.field__action {
+  @include reset-button;
+
+  position: absolute;
+  top: 50%;
+  right: space(1);
+  display: grid;
+  place-items: center;
+  width: rem(40px);
+  height: rem(40px);
+  color: var(--color-muted);
+  border-radius: radius('sm');
+  transform: translateY(-50%);
+
+  // Глаз: открыт/перечёркнут — одним псевдоэлементом.
+  &::before {
+    width: rem(18px);
+    height: rem(12px);
+    content: '';
+    border: 2px solid currentcolor;
+    border-radius: 50% / 60%;
+    box-shadow:
+      inset 0 0 0 3px var(--color-bg),
+      inset 0 0 0 6px currentcolor;
+  }
+
+  &[aria-pressed='true']::after {
+    position: absolute;
+    width: rem(22px);
+    height: 2px;
+    content: '';
+    background: currentcolor;
+    transform: rotate(-35deg);
+  }
+
+  @include hover {
+    color: var(--color-text);
+  }
+}
+
+// Select: своя стрелка вместо системной (одинаково во всех браузерах).
+select.field__input {
+  padding-right: rem(40px);
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentcolor 50%),
+    linear-gradient(135deg, currentcolor 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position:
+    calc(100% - 20px) 50%,
+    calc(100% - 15px) 50%;
+  background-size: 5px 5px;
+}
+
+// Чекбоксы и радио: системные, но в цвет проекта и крупнее (палец попадает).
+.choice {
+  display: flex;
+  gap: space(2);
+  align-items: flex-start;
+  cursor: pointer;
+
+  input {
+    flex-shrink: 0;
+    width: rem(20px);
+    height: rem(20px);
+    margin-top: 1px;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+  }
+}
+
+.choice-group {
+  display: grid;
+  // Если соседняя колонка выше, fieldset растягивается — строки не должны «разъезжаться».
+  align-content: start;
+  gap: space(2);
+  padding: 0;
+  margin: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: space(2);
+    font-size: rem(14px);
+    font-weight: 600;
+  }
+}
+
+// Счётчик символов (модуль char-counter).
+.field__counter {
+  align-self: flex-end;
+  font-size: rem(12px);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+
+  &.is-near {
+    color: var(--color-warning);
+  }
+
+  &.is-over {
+    color: var(--color-danger);
+  }
+}
+
+// Textarea, растущая по тексту (модуль autosize).
+.is-autosize {
+  field-sizing: content;
+  max-height: rem(320px);
+  resize: none;
+}
+
+// Степпер − 1 + (модуль stepper).
+.stepper {
+  display: inline-flex;
+  align-self: flex-start; // внутри .field (flex-колонка) не растягиваться на всю ширину
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: radius('md');
+
+  input {
+    width: 4ch;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    background: transparent;
+    border: 0;
+    // Убираем системные стрелочки у type=number — есть свои кнопки.
+    appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      appearance: none;
+    }
+  }
+
+  button {
+    @include reset-button;
+
+    width: rem(44px);
+    min-height: rem(44px);
+    font-size: rem(20px);
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.35;
+    }
+
+    @include hover {
+      background: var(--color-surface);
+    }
+  }
+}
+
+// Загрузка файлов (модуль file-upload).
+.upload {
+  display: grid;
+  gap: space(2);
+}
+
+// Настоящий input спрятан визуально, но доступен с клавиатуры: фокус на нём
+// подсвечивает зону (через :focus-visible + соседний селектор).
+.upload__input {
+  @include visually-hidden;
+
+  &:focus-visible + .upload__zone {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+.upload__zone {
+  display: grid;
+  gap: space(1);
+  justify-items: center;
+  padding: space(6) space(4);
+  color: var(--color-muted);
+  text-align: center;
+  cursor: pointer;
+  border: 2px dashed var(--color-border);
+  border-radius: radius('md');
+  transition:
+    border-color var(--duration),
+    background-color var(--duration);
+
+  u {
+    color: var(--color-accent);
+  }
+
+  small {
+    font-size: rem(12px);
+  }
+
+  .is-dragover & {
+    background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+    border-color: var(--color-accent);
+  }
+
+  .is-invalid & {
+    border-color: var(--color-danger);
+  }
+
+  @include hover {
+    border-color: var(--color-accent);
+  }
+}
+
+.upload__list {
+  @include reset-list;
+
+  display: grid;
+  gap: space(2);
+}
+
+.upload__item {
+  display: flex;
+  gap: space(3);
+  align-items: center;
+  padding: space(2) space(3);
+  background: var(--color-surface);
+  border-radius: radius('sm');
+}
+
+.upload__preview {
+  width: rem(40px);
+  height: rem(40px);
+  object-fit: cover;
+  border-radius: radius('sm');
+}
+
+.upload__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis; // длинное имя файла не ломает строку
+  white-space: nowrap;
+}
+
+.upload__size {
+  font-size: rem(12px);
+  color: var(--color-muted);
+}
+
+.upload__remove {
+  @include reset-button;
+
+  width: rem(32px);
+  height: rem(32px);
+  font-size: rem(18px);
+  border-radius: 50%;
+
+  @include hover {
+    color: var(--color-danger);
+  }
+}
+
+// Ползунок диапазона (модуль range): два input[type=range] друг на друге,
+// заливка между ручками — по --from / --to.
+.range {
+  --range-height: 4px;
+  --range-thumb: #{rem(20px)};
+
+  display: grid;
+  gap: space(3);
+}
+
+.range__track {
+  position: relative;
+  height: var(--range-thumb);
+
+  // Дорожка и заливка.
+  &::before,
+  &::after {
+    position: absolute;
+    top: 50%;
+    height: var(--range-height);
+    content: '';
+    border-radius: radius('pill');
+    transform: translateY(-50%);
+  }
+
+  &::before {
+    right: 0;
+    left: 0;
+    background: var(--color-border);
+  }
+
+  &::after {
+    right: calc(100% - var(--to, 100%));
+    left: var(--from, 0%);
+    background: var(--color-accent);
+  }
+
+  input[type='range'] {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    margin: 0;
+    pointer-events: none; // клики проходят сквозь — ловят только ручки
+    appearance: none;
+    background: none;
+
+    &::-webkit-slider-thumb {
+      width: var(--range-thumb);
+      height: var(--range-thumb);
+      pointer-events: auto;
+      cursor: grab;
+      appearance: none;
+      background: var(--color-bg);
+      border: 3px solid var(--color-accent);
+      border-radius: 50%;
+      box-shadow: var(--shadow-sm);
+    }
+
+    &::-moz-range-thumb {
+      width: var(--range-thumb);
+      height: var(--range-thumb);
+      pointer-events: auto;
+      cursor: grab;
+      background: var(--color-bg);
+      border: 3px solid var(--color-accent);
+      border-radius: 50%;
+    }
+
+    &:focus-visible::-webkit-slider-thumb {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.range__values {
+  display: flex;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}

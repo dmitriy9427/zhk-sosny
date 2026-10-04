@@ -1,0 +1,38 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Настройки проекта поверх кита + свои миксины/функции.
+// Подключайте В КАЖДОМ scss-файле проекта:  @use 'abstracts' as *;
+// CSS этот файл не выводит — дублирования не будет.
+//
+// «Лицо» ЖК: тёплый песочный фон, тёмно-зелёный (хвоя) и золото/медь.
+// Каждый ключ $colors становится CSS-переменной --color-<ключ>
+// (например --color-gold). Все настройки с пояснениями: kit/scss/_config.scss.
+//
+// Шрифты подключены в layouts/Base.astro (@fontsource-variable/*). Если
+// меняете шрифт — поменяйте и импорт там, и имя здесь (иначе будет запасной).
+// ═══════════════════════════════════════════════════════════════════════════
+@forward 'kit/scss/abstracts' with (
+  $colors: (
+    'bg': #f6f2ea,
+    'surface': #ece5d6,
+    'text': #1b231d,
+    'muted': #5f6a61,
+    'border': #dcd3c2,
+    'accent': #2f4a38,
+    'accent-contrast': #fff,
+    'focus': #a8844f,
+    'forest': #1e2b22,
+    'gold': #c9a36b,
+    'gold-dark': #a8844f,
+  ),
+  $font-base: (
+    'Onest Variable',
+    system-ui,
+    sans-serif,
+  ),
+  $font-heading: (
+    'Playfair Display Variable',
+    georgia,
+    serif,
+  ),
+  $container-max: 1320px
+);

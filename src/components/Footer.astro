@@ -1,0 +1,22 @@
+---
+import Logo from './Logo.astro'
+import { project } from '../data/project'
+---
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <Logo />
+      <p class="muted">{project.address}</p>
+      <p class="muted">{project.office}</p>
+    </div>
+    <div class="footer__contacts">
+      <a class="footer__phone" href={project.phoneHref}>{project.phone}</a>
+      <button class="btn btn--ghost btn--sm" data-dialog-open="visit">Записаться на показ</button>
+    </div>
+    <p class="footer__note muted">
+      Пет-проект: жилой комплекс, цены и квартиры вымышленные. Проектная декларация — заглушка. Не является публичной офертой.
+    </p>
+  </div>
+</footer>
+<button class="scroll-top" data-module="scroll-top" aria-label="Наверх">↑</button>

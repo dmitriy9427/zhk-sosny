@@ -1,0 +1,42 @@
+---
+/** Шапка: логотип, меню, телефон, избранное, кнопка показа, бургер. */
+import Logo from './Logo.astro'
+import { project } from '../data/project'
+
+const links = [
+  ['/flats/', 'Квартиры'],
+  ['/#about', 'О проекте'],
+  ['/#location', 'Расположение'],
+  ['/#mortgage', 'Ипотека'],
+  ['/#progress', 'Ход строительства'],
+]
+const isCurrent = (href: string) => href === Astro.url.pathname
+---
+
+<header class="header" data-module="sticky-header">
+  <div class="header__inner">
+    <Logo />
+    <nav id="site-menu" class="nav mobile-menu" aria-label="Основное меню" data-lenis-prevent>
+      <ul class="nav__list">
+        {
+          links.map(([href, label]) => (
+            <li>
+              <a class="nav__link" href={href} aria-current={isCurrent(href) ? 'page' : undefined}>
+                {label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="nav__phone" href={project.phoneHref}>{project.phone}</a>
+    </nav>
+    <div class="header__actions">
+      <a class="header__phone" href={project.phoneHref}>{project.phone}</a>
+      <a class="header__fav" href="/favorites/" aria-label="Избранное">
+        <span aria-hidden="true">♥</span><span class="header__fav-count" data-favorites-count hidden></span>
+      </a>
+      <button class="btn btn--sm header__cta" data-dialog-open="visit">Записаться на показ</button>
+      <button class="burger" data-module="menu" data-menu-target="site-menu"><span class="burger__lines"></span></button>
+    </div>
+  </div>
+</header>

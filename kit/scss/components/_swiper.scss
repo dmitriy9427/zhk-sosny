@@ -1,0 +1,109 @@
+// Оформление Swiper в стиле кита: цвета и размеры из токенов проекта.
+// Базовый CSS Swiper подключает сам модуль (kit/js/modules/swiper).
+@use '../abstracts' as *;
+
+.swiper {
+  // Swiper внутри flex/grid ломается: у .swiper в его CSS margin: auto, а
+  // авто-отступы во flex/grid отключают растягивание — слайдер становится
+  // шириной «по содержимому»: то 0 (слайды не видны), то сумма всех слайдов
+  // (страница уезжает вбок на тысячи пикселей). width: 100% + min-width: 0 —
+  // слайдер всегда шириной с родителя.
+  width: 100%;
+  min-width: 0;
+
+  // Swiper берёт цвета из своих переменных — связываем их с токенами кита.
+  --swiper-theme-color: var(--color-accent);
+  --swiper-navigation-color: var(--color-text);
+  --swiper-navigation-size: #{rem(18px)};
+  --swiper-pagination-color: var(--color-accent);
+  --swiper-pagination-bullet-inactive-color: var(--color-muted);
+  --swiper-pagination-bullet-inactive-opacity: 0.35;
+  --swiper-pagination-bullet-size: #{rem(8px)};
+  --swiper-scrollbar-drag-bg-color: var(--color-accent);
+}
+
+// Стрелки — круглые кнопки (и внутри слайдера, и вынесенные в шапку секции).
+.swiper-button-prev,
+.swiper-button-next {
+  @include reset-button;
+
+  width: rem(48px);
+  height: rem(48px);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color var(--duration),
+    opacity var(--duration);
+
+  @include hover {
+    background: var(--color-surface);
+  }
+
+  &.swiper-button-disabled {
+    opacity: 0.35;
+  }
+
+  // Вынесенные из слайдера стрелки — обычные элементы потока, не absolute.
+  .swiper-nav & {
+    position: static;
+    margin: 0;
+  }
+}
+
+.swiper-nav {
+  display: flex;
+  gap: space(2);
+}
+
+.swiper-pagination-bullet {
+  transition:
+    width var(--duration) var(--ease),
+    opacity var(--duration);
+}
+
+// Активная точка — вытянутая «таблетка».
+.swiper-pagination-bullet-active {
+  width: rem(24px);
+  border-radius: radius('pill');
+}
+
+// Вынесенная пагинация.
+.swiper-pagination.swiper-pagination-horizontal:not(.swiper .swiper-pagination) {
+  position: static;
+  width: auto;
+}
+
+// Пресет marquee: равномерное движение без «разгона-торможения».
+.swiper--marquee .swiper-wrapper {
+  transition-timing-function: linear !important;
+}
+
+.swiper--marquee .swiper-slide {
+  width: auto;
+}
+
+// Пресет coverflow/center: ширина слайда задаётся здесь.
+.swiper-coverflow .swiper-slide,
+.swiper[data-swiper-preset='center'] .swiper-slide {
+  width: min(80%, #{rem(520px)});
+}
+
+// Пресет cards: карточкам нужна ширина меньше контейнера.
+.swiper-cards {
+  width: min(100%, #{rem(360px)});
+  overflow: visible;
+}
+
+// Миниатюры галереи: активная — полностью видна.
+.swiper-thumbs .swiper-slide {
+  width: rem(96px);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity var(--duration);
+}
+
+.swiper-thumbs .swiper-slide-thumb-active {
+  opacity: 1;
+}
