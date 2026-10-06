@@ -1,9 +1,35 @@
-# Квартал «Сосны» — сайт жилого комплекса
+<div align="center">
 
-Пет-проект: промо-сайт ЖК с подбором квартир. Цены, квартиры и адрес
-вымышленные. Собран на шаблоне **frontend-kit** (Astro + TypeScript).
+<a href="https://dmitriy9427.github.io/zhk-sosny/"><img src="docs/screenshots/sosny-home.webp" alt="3D-квартал на первом экране" width="100%"></a>
 
-![Первый экран](public/og.jpg)
+# 🌲 Квартал «Сосны»
+
+**Сайт жилого комплекса с 3D-кварталом и подбором квартир — Astro, TypeScript, three.js**
+
+### [Открыть демо →](https://dmitriy9427.github.io/zhk-sosny/)
+
+![Astro](https://img.shields.io/badge/Astro-bc52ee?style=flat-square&logo=astro&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white) ![three.js](https://img.shields.io/badge/three.js-000000?style=flat-square&logo=threedotjs&logoColor=white) ![GSAP](https://img.shields.io/badge/GSAP-0ae448?style=flat-square&logo=greensock&logoColor=black) ![тесты 199](https://img.shields.io/badge/%D1%82%D0%B5%D1%81%D1%82%D1%8B_199-2ea44f?style=flat-square) [![Деплой](https://github.com/dmitriy9427/zhk-sosny/actions/workflows/pages.yml/badge.svg)](https://github.com/dmitriy9427/zhk-sosny/actions/workflows/pages.yml)
+
+</div>
+
+| Каталог: шахматка | Страница квартиры |
+| --- | --- |
+| <img src="docs/screenshots/sosny-chess.webp" alt="Каталог: шахматка"> | <img src="docs/screenshots/sosny-flat.webp" alt="Страница квартиры"> |
+
+## Коротко
+
+| | |
+| :---: | --- |
+| 🏙 | **3D-квартал** — башни с горящими окнами; наведи на башню — свободные квартиры, клик — каталог |
+| 🔎 | **Каталог 270 квартир** — фильтры, сортировка, список и шахматка, всё состояние — в адресе |
+| 📐 | **Страница квартиры** — 270 статических страниц, SVG-планировки, схема этажа, похожие квартиры |
+| 🧮 | **Ипотечный калькулятор** — семейная, IT, базовая программа и рассрочка |
+| ♥ | **Избранное** — в браузере, синхронизация между вкладками |
+| ✅ | **Качество** — 199 тестов, строгий TypeScript, доступность, SEO |
+
+Автор — [Дмитрий Рябов](https://dmitriy9427.github.io/resume/), frontend-разработчик.
+
+---
 
 ## Что есть
 
