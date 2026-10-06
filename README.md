@@ -79,6 +79,16 @@ npm run build      # готовый сайт в dist/
 | Адрес сайта (sitemap, Open Graph)               | `astro.config.mjs` → `site`                                    |
 | Картинка для соцсетей                           | `public/og.jpg` (1200×630)                                     |
 
+## Как устроено
+
+Учебные главы «что, как и почему» — в [docs/](docs/README.md):
+[архитектура](docs/01-architecture.md) ·
+[3D-квартал](docs/02-building3d.md) ·
+[каталог и шахматка](docs/03-catalog.md) ·
+[ипотека и избранное](docs/04-mortgage-favorites.md) ·
+[деплой](docs/05-deploy.md) ·
+[шпаргалка к собеседованию](docs/interview.md).
+
 ## Где что лежит
 
 ```
