@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/base'
 /** Шапка: логотип, меню, телефон, избранное, кнопка показа, бургер. */
 import Logo from './Logo.astro'
 import { project } from '../data/project'
@@ -10,7 +11,7 @@ const links = [
   ['/#mortgage', 'Ипотека'],
   ['/#progress', 'Ход строительства'],
 ]
-const isCurrent = (href: string) => href === Astro.url.pathname
+const isCurrent = (href: string) => withBase(href) === Astro.url.pathname
 ---
 
 <header class="header" data-module="sticky-header">
@@ -21,7 +22,7 @@ const isCurrent = (href: string) => href === Astro.url.pathname
         {
           links.map(([href, label]) => (
             <li>
-              <a class="nav__link" href={href} aria-current={isCurrent(href) ? 'page' : undefined}>
+              <a class="nav__link" href={withBase(href)} aria-current={isCurrent(href) ? 'page' : undefined}>
                 {label}
               </a>
             </li>
@@ -32,7 +33,7 @@ const isCurrent = (href: string) => href === Astro.url.pathname
     </nav>
     <div class="header__actions">
       <a class="header__phone" href={project.phoneHref}>{project.phone}</a>
-      <a class="header__fav" href="/favorites/" aria-label="Избранное">
+      <a class="header__fav" href={withBase('/favorites/')} aria-label="Избранное">
         <span aria-hidden="true">♥</span><span class="header__fav-count" data-favorites-count hidden></span>
       </a>
       <button class="btn btn--sm header__cta" data-dialog-open="visit">Записаться на показ</button>

@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/base'
 /**
  * «Шахматка»: все квартиры по башням и этажам. Цвет — число комнат, приглушённые
  * — не подходят под фильтр (класс is-match ставит модуль catalog), проданные
@@ -22,7 +23,7 @@ const floors = Array.from({ length: FLOORS - 1 }, (_, i) => FLOORS - i)
                 .map((f) => (
                   <a
                     class={`chess__cell chess__cell--r${f.rooms} chess__cell--${f.status}`}
-                    href={`/flats/${f.id}/`}
+                    href={withBase(`/flats/${f.id}/`)}
                     data-flat-cell={f.id}
                     title={`${f.rooms === 0 ? 'Студия' : `${f.rooms}-к`}, ${f.area} м², ${formatPrice(f.price)} — ${STATUS_LABEL[f.status]}`}
                   >

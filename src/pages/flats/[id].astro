@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../../lib/base'
 /**
  * Страница квартиры — собирается для каждой из 270 квартир при сборке
  * (getStaticPaths): свой адрес, свой <title>, её видят поисковики.
@@ -36,7 +37,7 @@ const params = [
   <section class="section flat">
     <div class="container">
       <nav class="breadcrumbs" aria-label="Хлебные крошки">
-        <a href="/">Главная</a> / <a href="/flats/">Квартиры</a> / <span aria-current="page">№{flat.number}</span>
+        <a href={withBase('/')}>Главная</a> / <a href={withBase('/flats/')}>Квартиры</a> / <span aria-current="page">№{flat.number}</span>
       </nav>
       <div class="flat__grid">
         <div class="flat__plan" data-reveal="scale">
@@ -64,7 +65,7 @@ const params = [
                   Забронировать
                 </button>
               ) : (
-                <a class="btn btn--lg btn--secondary" href={`/flats/?rooms=${flat.rooms}`}>
+                <a class="btn btn--lg btn--secondary" href={withBase(`/flats/?rooms=${flat.rooms}`)}>
                   Похожие свободные
                 </a>
               )
@@ -76,7 +77,7 @@ const params = [
             <div class="floor-scheme__row">
               {
                 floorFlats.map((f) => (
-                  <a href={`/flats/${f.id}/`} class:list={['floor-scheme__cell', `chess__cell--${f.status}`, { 'is-current': f.id === flat.id }]} title={flatTitle(f)}>
+                  <a href={withBase(`/flats/${f.id}/`)} class:list={['floor-scheme__cell', `chess__cell--${f.status}`, { 'is-current': f.id === flat.id }]} title={flatTitle(f)}>
                     {ROOM_LABEL[f.rooms].slice(0, 2)}
                   </a>
                 ))

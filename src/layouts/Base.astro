@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/base'
 /**
  * Каркас всех страниц: <head> (SEO, Open Graph), шрифты, шапка, подвал,
  * модалка «Записаться на показ», запуск модулей.
@@ -33,10 +34,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site)
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL('/og.jpg', Astro.site)} />
+    <meta property="og:image" content={new URL(withBase('/og.jpg'), Astro.site)} />
     <meta property="og:locale" content="ru_RU" />
     <meta name="theme-color" content="#1e2b22" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <script is:inline>
       document.documentElement.classList.add('js')
     </script>

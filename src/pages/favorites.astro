@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/base'
 /** Избранное: список хранится в браузере (localStorage) — рисуем на клиенте. */
 import Base from '../layouts/Base.astro'
 import { FLATS } from '../data/flats'
@@ -12,7 +13,7 @@ import { FLATS } from '../data/flats'
       <div class="catalog__list" data-favorites-list></div>
       <div class="empty" data-favorites-empty hidden>
         <p class="lead">Здесь пока пусто. Нажмите ♥ на понравившейся квартире.</p>
-        <a class="btn btn--lg" href="/flats/">Выбрать квартиру</a>
+        <a class="btn btn--lg" href={withBase('/flats/')}>Выбрать квартиру</a>
       </div>
     </div>
     <script type="application/json" id="all-flats" set:html={JSON.stringify(FLATS)} />

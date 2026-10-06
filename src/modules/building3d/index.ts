@@ -14,6 +14,7 @@ import { gsap, ScrollTrigger } from 'kit/js/core/gsap.js'
 import { createDisposer, onViewport } from 'kit/js/core/lifecycle.js'
 import { supportsWebGL } from 'kit/js/core/webgl.js'
 import type { TowerInfo } from './scene'
+import { withBase } from '../../lib/base'
 
 export default async function building3d(el: HTMLElement, ctx: { reduced?: boolean } = {}) {
   if (!supportsWebGL()) return undefined
@@ -64,7 +65,7 @@ export default async function building3d(el: HTMLElement, ctx: { reduced?: boole
   })
   d.listen(el, 'click', (event: MouseEvent) => {
     const info = scene.pick(event.clientX, event.clientY)
-    if (info) location.href = `/flats/?tower=${info.tower}`
+    if (info) location.href = withBase(`/flats/?tower=${info.tower}`)
   })
 
   let time = 0

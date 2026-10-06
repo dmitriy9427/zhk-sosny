@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/base'
 import Base from '../layouts/Base.astro'
 ---
 
@@ -7,6 +8,6 @@ import Base from '../layouts/Base.astro'
     <p class="eyebrow">Ошибка 404</p>
     <h1 class="section-title">Такой страницы нет</h1>
     <p class="lead">Возможно, квартиру уже продали или ссылка устарела.</p>
-    <p class="cluster"><a class="btn btn--lg" href="/flats/">Выбрать квартиру</a><a class="btn btn--lg btn--ghost" href="/">На главную</a></p>
+    <p class="cluster"><a class="btn btn--lg" href={withBase('/flats/')}>Выбрать квартиру</a><a class="btn btn--lg btn--ghost" href={withBase('/')}>На главную</a></p>
   </section>
 </Base>

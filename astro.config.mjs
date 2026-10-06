@@ -21,8 +21,9 @@ const kitDir = fileURLToPath(new URL('./kit', import.meta.url))
 const root = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
-  // TODO: адрес сайта
-  site: 'https://example.com',
+  // Адрес сайта (sitemap, Open Graph). На GitHub Pages — подпапка /zhk-sosny/
+  // (BASE_URL задаёт .github/workflows/pages.yml).
+  site: 'https://dmitriy9427.github.io',
   base: process.env.BASE_URL ?? '/',
   integrations: [sitemap()],
   server: { port: 4321 },

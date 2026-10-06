@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/base'
 /** Типы квартир «от N ₽» — ссылки в каталог с готовым фильтром. */
 import { ROOM_LABEL, formatPrice, summary } from '../data/flats'
 import { plural } from 'kit/js/form/schema.js'
@@ -16,8 +17,8 @@ const layouts = ['studio', 'one', 'two', 'three']
       {
         items.map((item, i) => (
           <li class="summary__item" data-reveal>
-            <a href={`/flats/?rooms=${item.rooms}`} class="summary__link" data-cursor="Смотреть">
-              <img class="summary__plan" src={`/plans/${layouts[i]}.svg`} alt="" width="300" height="200" loading="lazy" />
+            <a href={withBase(`/flats/?rooms=${item.rooms}`)} class="summary__link" data-cursor="Смотреть">
+              <img class="summary__plan" src={withBase(`/plans/${layouts[i]}.svg`)} alt="" width="300" height="200" loading="lazy" />
               <span class="summary__title">{item.rooms === 0 ? 'Студии' : ROOM_LABEL[item.rooms].replace('комнатная', 'комнатные')}</span>
               <span class="summary__meta">
                 от {item.areaFrom.toLocaleString('ru-RU')} м² · {item.count} {plural(item.count, ['свободная', 'свободные', 'свободных'])}
