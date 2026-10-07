@@ -42,7 +42,11 @@ describe('reveal', () => {
     // невидимым до прокрутки.
     const root = html('<section><p data-reveal>низ экрана</p><p data-reveal>ниже</p></section>')
     const [first, second] = root.querySelectorAll('p')
-    vi.spyOn(first, 'getBoundingClientRect').mockReturnValue({ top: window.innerHeight - 40, bottom: window.innerHeight, height: 40 })
+    vi.spyOn(first, 'getBoundingClientRect').mockReturnValue({
+      top: window.innerHeight - 40,
+      bottom: window.innerHeight,
+      height: 40,
+    })
     const batch = vi.spyOn(ScrollTrigger, 'batch')
     const to = vi.spyOn(gsap, 'to')
     const api = reveal(root, motion())

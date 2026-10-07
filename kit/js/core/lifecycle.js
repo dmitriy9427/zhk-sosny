@@ -8,6 +8,8 @@
  *   const d = createDisposer()
  *   d.listen(window, 'resize', onResize)      // повесить и запомнить, как снять
  *   d.add(() => tween.kill())                 // запомнить любую уборку
+ *   d.timeout(() => …, 2000)                  // setTimeout, который отменится при destroy
+ *   d.interval(() => …, 1000)                 // setInterval — то же
  *   return { destroy: d.dispose }
  *
  * onViewport() — позвать функцию, когда элемент появился/ушёл с экрана.
@@ -30,6 +32,22 @@ export function createDisposer() {
     listen(target, type, handler, options) {
       target.addEventListener(type, handler, options)
       return api.add(() => target.removeEventListener(type, handler, options))
+    },
+    /**
+     * setTimeout, отменяемый при уборке. Баг без него: блок удалили, а через 2 с
+     * таймер меняет текст удалённого элемента или шлёт событие «из прошлого».
+     * @returns {() => void} отменить вручную
+     */
+    timeout(fn, ms) {
+      if (disposed) return () => {}
+      const id = setTimeout(fn, ms)
+      return api.add(() => clearTimeout(id))
+    },
+    /** setInterval, отменяемый при уборке. @returns {() => void} остановить вручную */
+    interval(fn, ms) {
+      if (disposed) return () => {}
+      const id = setInterval(fn, ms)
+      return api.add(() => clearInterval(id))
     },
     /** Выполнить всё в обратном порядке. Повторный вызов безопасен. */
     dispose() {

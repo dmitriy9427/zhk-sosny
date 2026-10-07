@@ -60,11 +60,17 @@
 }
 
 .infinite__title {
+  // Подпись меняется при каждом слайде: одна строка фиксированной высоты,
+  // длинное — многоточием. Иначе стрелки/кнопки рядом «пляшут».
+  height: 1.3em;
   overflow: hidden;
   font-family: var(--font-heading);
   font-size: fluid(18px, 28px);
   font-weight: 700;
+  line-height: 1.3;
   text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .infinite__counter {
@@ -78,6 +84,7 @@
   display: flex;
   gap: var(--infinite-gap);
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
 }
 
@@ -274,6 +281,7 @@
 
   width: auto;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
 }
 

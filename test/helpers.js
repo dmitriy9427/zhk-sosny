@@ -2,6 +2,7 @@
  * Помощники для тестов модулей.
  */
 import { createBus } from '../kit/js/core/bus.js'
+import { modules } from '../kit/js/core/modules.js'
 
 /** Вставить HTML в документ и вернуть первый элемент. */
 export function html(markup) {
@@ -10,10 +11,24 @@ export function html(markup) {
 }
 
 /** Контекст модуля как в приложении, но без плавного скролла. */
-export const createCtx = (extra = {}) => ({ bus: createBus(), reduced: true, scroll: null, ...extra })
+export const createCtx = (extra = {}) => ({ bus: createBus(), reduced: true, scroll: null, modules, ...extra })
 
 /** Подождать завершения микрозадач/таймеров. */
 export const tick = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
+ * Ждать, пока условие станет истинным (по умолчанию до 1 с).
+ * Для асинхронного, время которого не угадать: history.back(), popstate.
+ * tick(5) «на глаз» под нагрузкой (параллельные тесты) иногда не успевает —
+ * тест падает через раз. until ждёт ровно столько, сколько нужно.
+ */
+export async function until(check, timeout = 1000) {
+  const start = Date.now()
+  while (!check()) {
+    if (Date.now() - start > timeout) throw new Error('until: не дождались условия')
+    await tick(5)
+  }
+}
 
 /** Нажатие клавиши на элементе. */
 export const key = (el, k, extra = {}) =>

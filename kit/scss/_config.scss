@@ -107,6 +107,8 @@ $z-layers-defaults: (
   'menu': 300,
   'dialog': 400,
   'toast': 500,
+  'tooltip': 600,
+  // если браузер без popover (иначе подсказка и так в верхнем слое)
   'devtools': 9000,
 );
 

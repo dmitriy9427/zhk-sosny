@@ -1,0 +1,14 @@
+{
+  "version": 1.1,
+  "globalAttributes": [
+    { "name": "x-for", "description": "Повторить элемент для каждого значения: `item of items`, `(item, i) of items`, `[key, value] of obj`, `n of 3`. Плагин kit/vite/html-components, docs/components.md" },
+    { "name": "x-if", "description": "Вывести элемент, если выражение истинно. Следующий элемент с x-else — иначе." },
+    { "name": "x-else", "valueSet": "v", "description": "Вывести, если x-if у предыдущего элемента ложен." },
+    { "name": "x-pre", "valueSet": "v", "description": "Не обрабатывать {{ }} и компоненты внутри (примеры кода)." },
+    { "name": "slot", "description": "В какой слот компонента попадёт элемент: <template slot=\"footer\">…</template>" }
+  ],
+  "tags": [
+    { "name": "slot", "description": "Место в разметке компонента, куда вставится содержимое из вызова. <slot name=\"…\"> — именованный слот; внутри — запасное содержимое.", "attributes": [{ "name": "name" }] },
+    { "name": "include", "description": "Старый способ: вставить кусок из partials/. Новое делайте компонентами <x-имя>.", "attributes": [{ "name": "src" }] }
+  ]
+}

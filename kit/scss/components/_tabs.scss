@@ -8,6 +8,7 @@
   gap: space(1);
   // На узком экране вкладки прокручиваются, а не переносятся в две строки.
   overflow-x: auto;
+  overscroll-behavior-x: contain; // свайп по вкладкам не листает историю браузера
   border-bottom: 1px solid var(--color-border);
 }
 

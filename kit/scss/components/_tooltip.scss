@@ -1,0 +1,75 @@
+// Подсказка (модуль tooltip). Один элемент на страницу, позицию ставит JS.
+// В «верхнем слое» (popover): видна поверх модалок, не режется overflow.
+@use '../abstracts' as *;
+
+.tooltip {
+  --tooltip-bg: var(--color-text);
+  --tooltip-color: var(--color-bg);
+
+  position: fixed;
+  inset: auto; // сброс стилей [popover] браузера (inset: 0; margin: auto)
+  z-index: z('tooltip');
+  max-width: min(#{rem(280px)}, calc(100vw - 16px));
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  font-size: rem(13px);
+  line-height: 1.4;
+  color: var(--tooltip-color);
+  pointer-events: none; // подсказка не мешает навести на соседний элемент
+  background: transparent;
+  border: 0;
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    translate 0.15s ease;
+  translate: 0 4px;
+
+  &.is-visible {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  &[data-placement='bottom'] {
+    translate: 0 -4px;
+  }
+
+  &[data-placement='bottom'].is-visible {
+    translate: 0 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.tooltip__body {
+  padding: rem(6px) rem(10px);
+  background: var(--tooltip-bg);
+  border-radius: radius('sm');
+  box-shadow: var(--shadow-sm);
+}
+
+.tooltip__arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--tooltip-bg);
+  rotate: 45deg;
+
+  .tooltip[data-placement='top'] & {
+    bottom: -4px;
+  }
+
+  .tooltip[data-placement='bottom'] & {
+    top: -4px;
+  }
+
+  .tooltip[data-placement='left'] & {
+    right: -4px;
+  }
+
+  .tooltip[data-placement='right'] & {
+    left: -4px;
+  }
+}

@@ -5,7 +5,9 @@
  */
 export default {
   extends: ['stylelint-config-standard-scss'],
-  ignoreFiles: ['**/dist/**', '**/coverage/**', '**/node_modules/**'],
+  // HTML не проверяем: расширение VS Code иначе разбирает разметку (<x-card>,
+  // {{ }}, x-for) как CSS — «Unknown word (CssSyntaxError)». Стили — только в .scss.
+  ignoreFiles: ['**/dist/**', '**/coverage/**', '**/node_modules/**', '**/*.html', '**/*.{js,jsx,ts,tsx,md}'],
   rules: {
     // БЭМ: .block__element--modifier
     'selector-class-pattern': [

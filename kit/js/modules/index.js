@@ -47,6 +47,8 @@ export const kitModules = {
   stepper: lazy(() => import('./stepper/index.js')),
   range: lazy(() => import('./range/index.js')),
   toast: lazy(() => import('./toast/index.js')),
+  scrollbar: lazy(() => import('./scrollbar/index.js')),
+  tooltip: lazy(() => import('./tooltip/index.js')),
   'lang-switch': lazy(() => import('./lang-switch/index.js')),
   // Эффекты (GSAP, WebGL)
   'infinite-slider': lazy(() => import('./infinite-slider/index.js')),

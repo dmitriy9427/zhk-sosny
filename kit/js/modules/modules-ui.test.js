@@ -9,7 +9,7 @@ import menu from './menu/index.js'
 import toastTriggers, { toast } from './toast/index.js'
 import themeSwitch, { THEME_SCRIPT, currentTheme } from './theme-switch/index.js'
 import { isScrollLocked, resetScrollLock } from '../core/scroll-lock.js'
-import { createCtx, html, key, tick } from '../../../test/helpers.js'
+import { createCtx, html, key, tick, until } from '../../../test/helpers.js'
 
 const ACCORDION = `
   <div data-module="accordion">
@@ -192,7 +192,7 @@ describe('dialog', () => {
     expect(el.open).toBe(true)
     expect(isScrollLocked()).toBe(true)
     el.querySelector('[data-dialog-close]').click()
-    await tick(5)
+    await until(() => !el.open) // закрытие — через history.back(), он асинхронный
     expect(el.open).toBe(false)
     expect(isScrollLocked()).toBe(false)
     expect(document.activeElement).toBe(opener)
@@ -224,7 +224,7 @@ describe('dialog', () => {
     expect(location.hash).toBe('#d1')
     expect(history.length).toBe(before + 1)
     api.close()
-    await tick(20) // history.back() асинхронный
+    await until(() => location.hash === '') // history.back() асинхронный
     expect(location.hash).toBe('')
     api.destroy()
   })
@@ -259,6 +259,7 @@ describe('dialog', () => {
   })
 
   it('повторное открытие во время закрытия; destroy снимает блокировку', () => {
+    resetScrollLock() // не зависеть от соседних тестов
     const el = html(DIALOG)
     const api = dialog(el, createCtx({ reduced: false }))
     api.open()

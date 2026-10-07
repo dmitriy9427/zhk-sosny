@@ -66,6 +66,29 @@ describe('select: одиночный', () => {
     expect(root.querySelector('.select__value').textContent).toBe('Тула')
   })
 
+  it('клик по стрелке внутри <label> не закрывает список сразу (label не уводит фокус)', () => {
+    const { root, input } = setup()
+    const arrow = root.querySelector('.select__arrow')
+    arrow.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true })
+    arrow.dispatchEvent(click)
+    expect(click.defaultPrevented).toBe(true) // переадресация label на скрытый select отменена
+    expect(root.classList.contains('is-open')).toBe(true)
+    expect(document.activeElement).toBe(input)
+  })
+
+  it('нажатие внутри списка (тянут скроллбар) не закрывает его, фокус возвращается', () => {
+    const { root, input } = setup()
+    root.querySelector('.select__control').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+    const scroller = root.querySelector('.select__scroller')
+    scroller.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+    input.blur() // библиотека скроллбара отменила pointerdown — фокус ушёл
+    expect(root.classList.contains('is-open')).toBe(true)
+    document.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }))
+    expect(document.activeElement).toBe(input)
+    expect(root.classList.contains('is-open')).toBe(true)
+  })
+
   it('клавиатура: ↓ открывает, disabled пропускается, Enter выбирает, Esc закрывает', () => {
     const { native, root, input } = setup()
     key(input, 'ArrowDown')

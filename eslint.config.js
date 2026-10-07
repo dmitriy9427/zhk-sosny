@@ -42,7 +42,7 @@ export default [
       ]
     : []),
   {
-    files: ['**/*.config.{js,mjs,ts}', 'scripts/**', 'kit/vite/**', '**/mocks/**'],
+    files: ['**/*.config.{js,mjs,ts}', 'scripts/**', 'kit/vite/**', 'kit/cli/**', '**/mocks/**'],
     languageOptions: { globals: { ...globals.node } },
     // Скрипты командной строки общаются с человеком через console.log — это норма.
     rules: { 'no-console': 'off' },

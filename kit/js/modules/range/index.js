@@ -96,7 +96,9 @@ export default function range(root, ctx = {}) {
   })
 
   const emit = () =>
-    root.dispatchEvent(new CustomEvent('range:change', { bubbles: true, detail: { min: Number(low.value), max: Number(high.value) } }))
+    root.dispatchEvent(
+      new CustomEvent('range:change', { bubbles: true, detail: { min: Number(low.value), max: Number(high.value) } }),
+    )
   d.listen(low, 'change', emit)
   d.listen(high, 'change', emit)
 

@@ -156,10 +156,9 @@
 .select__dropdown {
   z-index: z('dialog') + 10; // если браузер без popover
   display: none;
-  max-height: rem(320px);
-  padding: space(1);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden; // скругление углов обрезает прокрутку внутри
   color: var(--color-text);
   background: var(--color-bg);
   border: 1px solid var(--color-border);
@@ -172,13 +171,22 @@
   }
 
   .is-open & {
-    display: block;
+    display: flex;
     animation: kit-select-in 0.16s var(--ease);
   }
 
   .is-up & {
     animation-name: kit-select-in-up;
   }
+}
+
+// Прокручивается этот блок, а не сам dropdown: на нём живёт плавающий скроллбар
+// (kit/js/core/scrollbars.js), а dropdown свободно прячется через display.
+.select__scroller {
+  max-height: rem(320px);
+  padding: space(1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .select__list {

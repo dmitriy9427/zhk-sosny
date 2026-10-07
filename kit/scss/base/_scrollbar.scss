@@ -1,0 +1,77 @@
+// Скроллбары: тонкие, в цветах темы — без JS.
+//
+// Страница и любые блоки с overflow: auto красятся CSS: это не ломает
+// position: sticky, ScrollTrigger, Lenis и инерцию на телефоне (в отличие от
+// JS-скроллбаров на <body>). Для «плавающего» автоскрывающегося скроллбара у
+// блока — модуль scrollbar (OverlayScrollbars), его тема .os-theme-kit ниже.
+//
+// Цвета — переменные: поменять в проекте можно в :root или у отдельного блока:
+//   .chat { --scrollbar-thumb: var(--color-accent); }
+@use '../abstracts' as *;
+
+:root {
+  --scrollbar-size: 12px;
+  --scrollbar-thumb: color-mix(in srgb, var(--color-text) 28%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--color-text) 45%, transparent);
+  --scrollbar-track: transparent;
+}
+
+// Стандарт (Firefox, Chrome 121+, Safari 26+): цвет ползунка и дорожки.
+// Наследуется — действует на всю страницу и все блоки.
+html {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+// Тонкий вариант для блоков: выпадающие списки, модалки, таблицы, .scroll-area.
+.scroll-area,
+.select__scroller,
+.dialog__box,
+.mobile-menu,
+textarea {
+  scrollbar-width: thin;
+}
+
+// Старые Safari/Chrome не знают scrollbar-color — для них ::-webkit-scrollbar.
+// В новых Chrome при заданном scrollbar-color эти правила игнорируются, поэтому
+// они под @supports not и не спорят друг с другом.
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    background-clip: padding-box;
+    border: 2px solid transparent; // «отступ» вокруг ползунка
+    border-radius: 999px;
+
+    &:hover {
+      background-color: var(--scrollbar-thumb-hover);
+    }
+  }
+}
+
+// Тема модуля scrollbar (OverlayScrollbars) — те же переменные.
+// Два класса, а не один: CSS библиотеки подключается модулем ПОЗЖЕ стилей кита,
+// и его .os-scrollbar { --os-size: 0 … } при равной специфичности перебил бы тему.
+.os-scrollbar.os-theme-kit {
+  --os-size: var(--scrollbar-size);
+  --os-padding-perpendicular: 2px;
+  --os-padding-axis: 2px;
+  --os-track-border-radius: 999px;
+  --os-handle-border-radius: 999px;
+  --os-handle-bg: var(--scrollbar-thumb);
+  --os-handle-bg-hover: var(--scrollbar-thumb-hover);
+  --os-handle-bg-active: var(--scrollbar-thumb-hover);
+  --os-handle-interactive-area-offset: 4px;
+  --os-handle-perpendicular-size: 70%;
+  --os-handle-perpendicular-size-hover: 100%; // под курсором ползунок толще — проще попасть
+  --os-handle-perpendicular-size-active: 100%;
+
+  box-sizing: border-box;
+}

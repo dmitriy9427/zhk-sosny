@@ -244,3 +244,29 @@ textarea.field__input {
   padding-bottom: 0.12em;
   margin-bottom: -0.12em;
 }
+
+// ─── expand ────────────────────────────────────────────────────────────────
+// Плавное раскрытие по высоте без JS-замеров (React: <Expand open>,
+// вёрстка: data-open="true|false"). Секрет — grid-template-rows 0fr → 1fr:
+// браузер сам анимирует до высоты содержимого. Внутренний блок — min-height: 0,
+// иначе строка сетки не сожмётся меньше содержимого.
+.expand {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--duration) var(--ease);
+
+  &[data-open='true'] {
+    grid-template-rows: 1fr;
+  }
+}
+
+.expand__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expand {
+    transition: none;
+  }
+}

@@ -1,0 +1,9 @@
+{
+  // Подсказки по директивам шаблонов (x-for, x-if, slot…) в .html — docs/components.md
+  "html.customData": ["./.vscode/html-data.json"],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.associations": { "*.html": "html" },
+  // Stylelint — только для стилей. С "html" в списке он разбирает разметку как CSS.
+  "stylelint.validate": ["css", "scss"]
+}

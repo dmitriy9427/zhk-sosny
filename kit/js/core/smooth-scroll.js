@@ -19,13 +19,44 @@
  * ScrollTrigger о каждом сдвиге.
  *
  * ─── Вложенная прокрутка ────────────────────────────────────────────────────
- * Блок с собственным скроллом (меню, модалка, таблица) помечайте
- * `data-lenis-prevent` — иначе колесо будет крутить страницу, а не блок.
+ * Без этого Lenis перехватывает колесо/тачпад ВЕЗДЕ: внутри модалки, длинного
+ * выпадающего списка, таблицы с overflow: auto крутится страница, а не блок.
+ * Защита в три слоя:
+ *   1. allowNestedScroll: true — Lenis сам проверяет, может ли блок под
+ *      курсором прокрутиться в эту сторону (overflow: auto/scroll и есть куда),
+ *      и тогда отдаёт событие браузеру. Покрывает таблицы, код, свои блоки —
+ *      без атрибутов. Когда блок докручен до конца, колесо снова крутит страницу.
+ *   2. NESTED_SCROLL — элементы кита, которым плавный скролл не нужен никогда
+ *      (модалка, меню, выпадающий список, textarea…), даже если в момент
+ *      события прокручивать им нечего: так страница не «проезжает» под окном.
+ *   3. data-lenis-prevent — вручную на любом блоке (и -vertical, -horizontal,
+ *      -wheel, -touch — только для одного типа событий), а для проекта —
+ *      опция prevent: createApp({ smooth: { prevent: (node) => … } }).
+ * Пока страница заблокирована (модалка, меню — lockScroll → lenis.stop()),
+ * Lenis гасит колесо, НО проверки выше идут раньше — блоки внутри окна
+ * прокручиваются нормально.
  * @module kit/core/smooth-scroll
  */
 import Lenis from 'lenis'
 import { gsap, ScrollTrigger } from './gsap.js'
 import { delegate } from './dom.js'
+
+/**
+ * Блоки кита со своей прокруткой. Расширяйте через опцию prevent, а не правкой списка.
+ * dialog и [popover] — верхний слой браузера: страница под ними не должна ехать.
+ */
+export const NESTED_SCROLL = [
+  '[data-lenis-prevent]',
+  'dialog',
+  '[popover]',
+  '.mobile-menu',
+  '.select__dropdown',
+  '.select__scroller',
+  '.scroll-area',
+  '[data-overlayscrollbars-viewport]', // модуль scrollbar
+  'textarea',
+  'iframe',
+].join(', ')
 
 /** Высота фиксированной шапки из CSS-переменной --header-height (для якорей). */
 export function headerOffset() {
@@ -34,16 +65,22 @@ export function headerOffset() {
 }
 
 /**
- * @param {{ enabled?: boolean, duration?: number, anchors?: boolean, reduced?: boolean }} [o]
+ * @param {{ enabled?: boolean, duration?: number, anchors?: boolean, reduced?: boolean, prevent?: (node: HTMLElement) => boolean }} [o]
  *   enabled — включить Lenis (иначе нативный скролл, но API тот же);
- *   anchors — перехватывать клики по ссылкам вида #id.
+ *   anchors — перехватывать клики по ссылкам вида #id;
+ *   prevent — свои блоки, где колесо должно работать нативно (в дополнение к NESTED_SCROLL).
  */
-export function createSmoothScroll({ enabled = true, duration = 1.1, anchors = true, reduced = false } = {}) {
+export function createSmoothScroll({ enabled = true, duration = 1.1, anchors = true, reduced = false, prevent } = {}) {
   let lenis = null
   let tick = null
 
   if (enabled) {
-    lenis = new Lenis({ duration, autoRaf: false })
+    lenis = new Lenis({
+      duration,
+      autoRaf: false,
+      allowNestedScroll: true,
+      prevent: (node) => node.matches(NESTED_SCROLL) || Boolean(prevent?.(node)),
+    })
     lenis.on('scroll', ScrollTrigger.update)
     tick = (time) => lenis.raf(time * 1000)
     gsap.ticker.add(tick)

@@ -18,7 +18,19 @@ export {
 export { createDisposer, onViewport } from './lifecycle.js'
 export { clamp, damp, lerp, mapRange, round, wrap } from './math.js'
 export { coerce, readOptions } from './options.js'
-export { getInstance, isLazy, lazy, mount, moduleNames, observe, unmount } from './registry.js'
+export {
+  getInstance,
+  isLazy,
+  isMounted,
+  lazy,
+  mount,
+  mountedNames,
+  moduleNames,
+  observe,
+  unmount,
+  waitMounted,
+} from './registry.js'
+export { createModulesApi, modules, modulesFromGlob, pluginsFromGlob } from './modules.js'
 export { isScrollLocked, lockScroll, resetScrollLock, setScrollEngine, unlockScroll } from './scroll-lock.js'
 export { createSmoothScroll, headerOffset } from './smooth-scroll.js'
 export { readStorage, removeStorage, writeStorage } from './storage.js'

@@ -16,8 +16,17 @@ html.lenis body {
   scroll-behavior: auto !important;
 }
 
-// Блоки со своей прокруткой (data-lenis-prevent) не передают её странице.
+// Блоки со своей прокруткой не передают её странице, когда докручены до конца.
+// Какие блоки Lenis не трогает — kit/js/core/smooth-scroll.js (NESTED_SCROLL,
+// allowNestedScroll). Свой блок со скроллом: класс .scroll-area или data-lenis-prevent.
 .lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+// Готовый блок с собственной прокруткой (таблица, длинный список, чат):
+//   <div class="scroll-area" data-lenis-prevent style="max-height: 400px">…</div>
+.scroll-area {
+  overflow: auto;
   overscroll-behavior: contain;
 }
 

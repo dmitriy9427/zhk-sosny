@@ -65,6 +65,25 @@ describe('lifecycle', () => {
     expect(fn).not.toHaveBeenCalled()
   })
 
+  it('timeout и interval отменяются при dispose', () => {
+    vi.useFakeTimers()
+    const d = createDisposer()
+    const once = vi.fn()
+    const tick = vi.fn()
+    d.timeout(once, 100)
+    d.interval(tick, 50)
+    vi.advanceTimersByTime(60)
+    expect(tick).toHaveBeenCalledTimes(1)
+    d.dispose()
+    vi.advanceTimersByTime(500)
+    expect(once).not.toHaveBeenCalled()
+    expect(tick).toHaveBeenCalledTimes(1)
+    d.timeout(once, 0) // после уборки — не запускается
+    vi.runAllTimers()
+    expect(once).not.toHaveBeenCalled()
+    vi.useRealTimers()
+  })
+
   it('onViewport зовёт enter/leave при смене состояния, once отключается', () => {
     const el = html('<div></div>')
     const enter = vi.fn()

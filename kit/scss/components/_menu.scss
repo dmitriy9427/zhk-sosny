@@ -68,6 +68,7 @@
     z-index: z('menu');
     padding: calc(var(--header-height) + #{space(4)}) var(--container-padding) space(8);
     overflow-y: auto;
+    overscroll-behavior: contain; // докрутили меню до конца — страница под ним не едет
     visibility: hidden;
     background: var(--color-bg);
     opacity: 0;

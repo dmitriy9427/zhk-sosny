@@ -42,6 +42,7 @@ import { readOptions } from '../../core/options.js'
 import { delegate } from '../../core/dom.js'
 import { lockScroll, unlockScroll } from '../../core/scroll-lock.js'
 import { getHash, setHash } from '../../core/url.js'
+import { attachScrollbar } from '../../core/scrollbars.js'
 
 const DEFAULTS = {
   /** Закрывать кликом по затемнению вокруг окна. */
@@ -58,6 +59,9 @@ export default function dialog(el, ctx = {}) {
 
   const options = readOptions(el, 'dialog', DEFAULTS, ctx.options)
   const d = createDisposer()
+  // Длинное содержимое окна — плавающий скроллбар в стиле кита (с мышью). kit/js/core/scrollbars.js
+  const box = el.querySelector('.dialog__box')
+  if (box instanceof HTMLElement) d.add(attachScrollbar(box))
   let opener = null
   let closing = null
   let locked = false

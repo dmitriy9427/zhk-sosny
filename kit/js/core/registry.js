@@ -33,6 +33,8 @@ const instances = new WeakMap()
 
 /** Метка ленивого модуля. */
 const LAZY = Symbol('lazy')
+/** Модуль на элементе ещё запускается (ленивый грузится). */
+const PENDING = Symbol('pending')
 
 /**
  * Обернуть загрузчик модуля, чтобы код скачивался только при необходимости.
@@ -100,7 +102,7 @@ export async function mount(registry, ctx = {}, root = document, { strict = true
 
       // Ставим «заглушку» сразу, до await: если mount вызовут ещё раз, пока
       // ленивый модуль грузится, второй запуск увидит, что место занято.
-      own.set(name, null)
+      own.set(name, PENDING)
       jobs.push(
         (async () => {
           try {
@@ -109,6 +111,7 @@ export async function mount(registry, ctx = {}, root = document, { strict = true
             if (!instances.get(el)?.has(name)) return instance?.destroy?.()
             own.set(name, instance ?? null)
             mounted.push(name)
+            notify(el, name)
           } catch (error) {
             own.delete(name)
             failed.push(name)
@@ -135,7 +138,7 @@ export function unmount(root = document) {
     if (!own) continue
     for (const [name, instance] of Array.from(own).reverse()) {
       try {
-        instance?.destroy?.()
+        if (instance !== PENDING) instance?.destroy?.()
       } catch (error) {
         console.error(`[kit] ошибка destroy у «${name}»`, error)
       }
@@ -149,7 +152,65 @@ export function unmount(root = document) {
  *   getInstance(el, 'dialog').open()
  * @returns {object | null | undefined}
  */
-export const getInstance = (el, name) => instances.get(el)?.get(name)
+export function getInstance(el, name) {
+  const instance = instances.get(el)?.get(name)
+  return instance === PENDING ? undefined : instance
+}
+
+/** Запущен ли модуль name на элементе (экземпляр может быть null — модуль без API). */
+export const isMounted = (el, name) => Boolean(instances.get(el)?.has(name)) && instances.get(el).get(name) !== PENDING
+
+/** Имена запущенных на элементе модулей. */
+export const mountedNames = (el) =>
+  Array.from(instances.get(el) ?? []).flatMap(([name, instance]) => (instance === PENDING ? [] : [name]))
+
+// ─── Ожидание запуска ────────────────────────────────────────────────────────
+// Модули запускаются асинхронно (ленивые грузятся по сети) и в произвольном
+// порядке. Модулю A, которому нужен модуль B, нельзя просто взять экземпляр
+// при старте — B может быть ещё не загружен. whenMounted ждёт.
+
+/** @type {Set<{ match: (el: Element, name: string) => boolean, done: (el: Element, name: string) => void }>} */
+const waiters = new Set()
+
+function notify(el, name) {
+  for (const waiter of Array.from(waiters)) if (waiter.match(el, name)) waiter.done(el, name)
+}
+
+/**
+ * Дождаться запуска модуля, подходящего под условие.
+ * @param {(el: Element, name: string) => boolean} match
+ * @param {{ timeout?: number, signal?: AbortSignal, label?: string }} [o]
+ * @returns {Promise<{ el: Element, name: string }>}
+ */
+export function waitMounted(match, { timeout = 10000, signal, label = 'модуль' } = {}) {
+  return new Promise((resolve, reject) => {
+    const waiter = {
+      match,
+      done: (el, name) => {
+        cleanup()
+        resolve({ el, name })
+      },
+    }
+    const timer =
+      timeout > 0
+        ? setTimeout(() => {
+            cleanup()
+            reject(new Error(`[kit] не дождались запуска: ${label} (${timeout} мс). Есть ли он на странице?`))
+          }, timeout)
+        : null
+    const onAbort = () => {
+      cleanup()
+      reject(signal.reason ?? new Error('aborted'))
+    }
+    function cleanup() {
+      waiters.delete(waiter)
+      if (timer) clearTimeout(timer)
+      signal?.removeEventListener('abort', onAbort)
+    }
+    signal?.addEventListener('abort', onAbort)
+    waiters.add(waiter)
+  })
+}
 
 /**
  * Следить за DOM и запускать/останавливать модули у добавленных/удалённых

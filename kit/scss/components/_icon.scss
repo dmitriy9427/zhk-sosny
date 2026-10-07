@@ -1,0 +1,32 @@
+// Иконки из SVG-спрайта (kit/vite/svg-sprite.js):
+//   <svg class="icon"><use href="#icon-heart"></use></svg>   или   <x-icon name="heart" />
+//
+// Размер — 1em: иконка растёт вместе с текстом рядом. Нужно больше —
+// font-size или модификаторы ниже. Цвет — color (в спрайте цвета заменены
+// на currentColor). БЕЗ этих стилей inline-SVG без width/height растягивается
+// на всю ширину родителя — классический баг «огромных иконок».
+@use '../abstracts' as *;
+
+.icon {
+  display: inline-block; // reset.scss делает svg блочным — иконка в тексте ушла бы на свою строку
+  flex-shrink: 0; // во flex-кнопке иконку не сплющит длинный текст
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em; // по центру строчных букв, а не по базовой линии
+  pointer-events: none; // клик по иконке = клик по кнопке (event.target — кнопка)
+}
+
+.icon--sm {
+  width: rem(16px);
+  height: rem(16px);
+}
+
+.icon--md {
+  width: rem(24px);
+  height: rem(24px);
+}
+
+.icon--lg {
+  width: rem(32px);
+  height: rem(32px);
+}

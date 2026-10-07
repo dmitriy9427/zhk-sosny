@@ -4,7 +4,8 @@
 | ------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | `app.js`                             | `createApp({ modules })` — запуск всего: контекст, плавный скролл, модули, пересчёт ScrollTrigger |
 | `registry.js`                        | `mount/unmount/observe/lazy/getInstance` — запуск модулей по `data-module`, без двойного запуска  |
-| `lifecycle.js`                       | `createDisposer()` — «уборка за собой», `onViewport()` — элемент на экране                        |
+| `modules.js`                         | `modules.get/all/when` — доступ к другим модулям; `modulesFromGlob` — регистрация по папкам       |
+| `lifecycle.js`                       | `createDisposer()` — «уборка за собой» (listen, timeout, interval), `onViewport()`                |
 | `bus.js`                             | `createBus()` — шина событий между модулями (с replay)                                            |
 | `options.js`                         | `readOptions(el, name, DEFAULTS)` — настройки из `data-*` с приведением типов                     |
 | `env.js`                             | брейкпоинты из CSS, reduced motion, hover, тач, `watchMedia`                                      |
@@ -16,4 +17,4 @@
 | `math.js`, `timing.js`, `storage.js` | clamp/lerp/damp/wrap; debounce/throttle/rafThrottle; безопасный localStorage                      |
 
 Импортируйте конкретные файлы (`kit/js/core/lifecycle.js`), а не `index.js`, — в сборку попадёт
-только нужное. Тесты: `core.test.js`, `registry.test.js`.
+только нужное. Тесты: `core.test.js`, `registry.test.js`, `modules.test.js`.

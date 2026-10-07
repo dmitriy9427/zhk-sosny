@@ -50,6 +50,7 @@ import { readOptions } from '../../core/options.js'
 import { uid } from '../../core/dom.js'
 import { debounce } from '../../core/timing.js'
 import { onLocaleChange, t } from '../../core/i18n.js'
+import { attachScrollbar } from '../../core/scrollbars.js'
 
 const DEFAULTS = {
   /** Поле поиска по вариантам. */
@@ -129,8 +130,10 @@ export default function select(native, ctx = {}) {
       <span class="select__arrow" aria-hidden="true"></span>
     </div>
     <div class="select__dropdown" id="${id}-dropdown">
-      <ul class="select__list" id="${id}-list" role="listbox"></ul>
-      <p class="select__empty" hidden></p>
+      <div class="select__scroller">
+        <ul class="select__list" id="${id}-list" role="listbox"></ul>
+        <p class="select__empty" hidden></p>
+      </div>
     </div>
     <span class="visually-hidden" aria-live="polite"></span>`
   /** @type {HTMLElement} */
@@ -146,6 +149,8 @@ export default function select(native, ctx = {}) {
   /** @type {HTMLElement} */
   const dropdown = root.querySelector('.select__dropdown')
   /** @type {HTMLElement} */
+  const scrollBox = root.querySelector('.select__scroller')
+  /** @type {HTMLElement} */
   const list = root.querySelector('.select__list')
   /** @type {HTMLElement} */
   const empty = root.querySelector('.select__empty')
@@ -153,6 +158,10 @@ export default function select(native, ctx = {}) {
   const live = root.querySelector('[aria-live]')
   if (multiple) list.setAttribute('aria-multiselectable', 'true')
   if (canPopover) dropdown.popover = 'manual'
+  // Плавающий скроллбар в стиле кита (с мышью; на таче — системный). kit/js/core/scrollbars.js
+  // На внутреннем блоке, а не на самом dropdown: библиотека ставит хосту display: flex,
+  // а dropdown прячется/показывается через display — они бы спорили.
+  const scroller = d.add(attachScrollbar(scrollBox))
 
   // Подпись поля: <label> вокруг select или label[for] — переносим на input.
   /** @type {HTMLLabelElement | null} */
@@ -305,6 +314,7 @@ export default function select(native, ctx = {}) {
       renderList()
       if (canPopover) dropdown.showPopover()
       place()
+      scroller.update() // список был скрыт — скроллбару нужно пересчитать размеры
       scrollToActive()
       window.addEventListener('scroll', place, true)
       window.addEventListener('resize', place)
@@ -389,6 +399,12 @@ export default function select(native, ctx = {}) {
     setOpen(!open)
   })
   d.listen(control, 'click', (event) => {
+    // Селект обычно внутри <label class="field">. Клик по НЕинтерактивной части
+    // (стрелка, текст значения) label переадресует связанному полю — скрытому
+    // нативному select: фокус уходит с нашего input, blur закрывает список,
+    // который mousedown только что открыл («открылся и сразу закрылся»).
+    // preventDefault у click отменяет эту переадресацию.
+    if (event.target !== input) event.preventDefault()
     const remove = event.target.closest('.select__chip-remove')
     if (remove) {
       event.stopPropagation()
@@ -399,7 +415,9 @@ export default function select(native, ctx = {}) {
       input.focus()
     }
   })
-  d.listen(list, 'mousedown', (event) => event.preventDefault())
+  // Весь выпадающий блок, а не только список: иначе нажатие на скроллбар
+  // (он рядом со списком) уводит фокус с поля — blur закрывает список.
+  d.listen(dropdown, 'mousedown', (event) => event.preventDefault())
   d.listen(list, 'click', (event) => {
     const li = event.target.closest('[role="option"]')
     if (li && li.getAttribute('aria-disabled') !== 'true') choose(Number(li.dataset.index))
@@ -510,7 +528,19 @@ export default function select(native, ctx = {}) {
     if (load) runLoad(query)
   })
 
+  // Нажатие внутри выпадающего блока (тянут ползунок скроллбара): библиотека
+  // скроллбара отменяет pointerdown, mousedown не приходит — фокус уходит с поля.
+  // Пока кнопка зажата внутри списка, blur не закрывает его; после — фокус обратно.
+  let pressing = false
+  d.listen(dropdown, 'pointerdown', () => (pressing = true), { capture: true })
+  d.listen(document, 'pointerup', () => {
+    if (!pressing) return
+    pressing = false
+    if (open) input.focus()
+  })
+
   d.listen(input, 'blur', () => {
+    if (pressing) return
     setOpen(false)
     // Модуль form проверяет поле «при уходе» по событию настоящего select.
     native.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))

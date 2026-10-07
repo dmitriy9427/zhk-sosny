@@ -113,7 +113,15 @@ describe('devtools-guard', () => {
   })
 
   it('kit() собирает набор плагинов по настройкам', () => {
-    expect(kit().map((p) => p.name)).toEqual(['kit:html-include', 'kit:pages', 'kit:mock-api', 'kit:devtools-guard'])
-    expect(kit({ include: false, pages: false, mocks: false }).map((p) => p.name)).toEqual(['kit:devtools-guard'])
+    expect(kit().map((p) => p.name)).toEqual([
+      'kit:html',
+      'kit:svg-sprite',
+      'kit:pages',
+      'kit:mock-api',
+      'kit:devtools-guard',
+    ])
+    expect(kit({ include: false, icons: false, pages: false, mocks: false }).map((p) => p.name)).toEqual([
+      'kit:devtools-guard',
+    ])
   })
 })
