@@ -264,9 +264,16 @@
   position: relative;
 }
 
+// Заголовок и лента — одним блоком по центру экрана по вертикали. Было
+// `auto 1fr`: ряд ленты занимал всю оставшуюся высоту, карточки растягивались
+// и прижимались к низу/верху вместо центра.
 .hscroll__pin {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto;
+  // Колонка — ширина экрана. Без этого она растягивалась под ленту (а лента
+  // шире экрана — width: max-content), и заголовок с .container центрировался
+  // в этой огромной колонке и уезжал за правый край.
+  grid-template-columns: minmax(0, 1fr);
   align-content: center;
   overflow: hidden;
 

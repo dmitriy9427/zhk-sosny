@@ -26,6 +26,15 @@
  *
  * Начальная вкладка: из адреса → data-tabs-active="1" → первая.
  *
+ * ─── Переключение без скачка ──────────────────────────────────────────────────
+ * Панели разной высоты: без защиты блок мгновенно меняет высоту, и всё, что
+ * ниже, прыгает вверх-вниз. Модуль меряет высоту ДО и ПОСЛЕ смены панели и
+ * плавно ведёт блок от одной к другой, а новая панель проявляется. Анимации —
+ * Web Animations API (element.animate): модулю не нужен GSAP. Быстрый второй
+ * клик отменяет незаконченную анимацию и меряет заново — блок не «застревает»
+ * на промежуточной высоте. Выключить: data-tabs-animate="false"; при
+ * «уменьшении движения» в системе анимации нет.
+ *
  * Частый баг, который здесь закрыт: при переключении вкладки меняется высота
  * страницы, и анимации на скролле ниже срабатывают «не там». Модуль шлёт
  * событие 'tabs:change'; createApp сам пересчитывает ScrollTrigger при
@@ -44,7 +53,13 @@ const DEFAULTS = {
   url: true,
   /** Имя параметра в адресе. Пусто — id корня или «tab». */
   param: '',
+  /** Плавная смена высоты и проявление панели. */
+  animate: true,
+  /** Длительность анимации, мс. */
+  duration: 350,
 }
+
+const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'
 
 /** Какие имена параметров уже заняты на странице — чтобы предупредить о конфликте. */
 const usedParams = new Set()
@@ -75,6 +90,9 @@ export default function tabs(root, ctx = {}) {
   })
 
   let current = -1
+  /** Незаконченные анимации прошлого переключения. */
+  let running = []
+  const reduced = () => ctx.reduced ?? window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const param = options.param || root.id || 'tab'
   const valueOf = (i) => tabsEls[i]?.dataset.tabsValue || panels[i]?.id || String(i + 1)
   const indexOf = (value) => tabsEls.findIndex((_, i) => valueOf(i) === value)
@@ -90,6 +108,12 @@ export default function tabs(root, ctx = {}) {
 
   function select(index, { focus = false, emit = true } = {}) {
     if (index < 0 || index >= tabsEls.length || index === current) return
+    // Анимируем только переключение пользователем, не начальный выбор.
+    const animate = emit && current >= 0 && options.animate && typeof root.animate === 'function' && !reduced()
+    // Прошлая анимация не закончилась — снять её, иначе высота «до» измерится промежуточной.
+    running.forEach((animation) => animation.cancel())
+    running = []
+    const before = animate ? root.offsetHeight : 0
     current = index
     tabsEls.forEach((tab, i) => {
       const active = i === index
@@ -98,6 +122,33 @@ export default function tabs(root, ctx = {}) {
       tab.classList.toggle('is-active', active)
       if (panels[i]) panels[i].hidden = !active
     })
+    if (animate) {
+      const after = root.offsetHeight
+      const timing = { duration: options.duration, easing: EASE }
+      // overflow: hidden — пока блок ниже содержимого, лишнее не вылезает поверх соседей.
+      if (before !== after) {
+        running.push(
+          root.animate(
+            [
+              { height: `${before}px`, overflow: 'hidden' },
+              { height: `${after}px`, overflow: 'hidden' },
+            ],
+            timing,
+          ),
+        )
+      }
+      if (panels[index]) {
+        running.push(
+          panels[index].animate(
+            [
+              { opacity: 0, transform: 'translateY(8px)' },
+              { opacity: 1, transform: 'none' },
+            ],
+            timing,
+          ),
+        )
+      }
+    }
     if (focus) tabsEls[index].focus()
     if (options.url && emit) setParam(param, index === fallback ? null : valueOf(index))
     if (emit) root.dispatchEvent(new CustomEvent('tabs:change', { bubbles: true, detail: { index } }))
@@ -136,6 +187,9 @@ export default function tabs(root, ctx = {}) {
     get index() {
       return current
     },
-    destroy: d.dispose,
+    destroy: () => {
+      running.forEach((animation) => animation.cancel())
+      d.dispose()
+    },
   }
 }

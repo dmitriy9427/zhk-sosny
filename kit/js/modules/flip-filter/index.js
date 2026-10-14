@@ -111,6 +111,12 @@ export default function flipFilter(el, ctx = {}) {
 
     const startHeight = grid.offsetHeight
 
+    // Прошлая анимация могла не закончиться (быстрый второй клик): у сетки осталась
+    // промежуточная inline-высота. Снимаем её, иначе и конечная высота, и позиции
+    // карточек измерятся в «замороженной» сетке.
+    gsap.killTweensOf(grid)
+    gsap.set(grid, { clearProps: 'height' })
+
     // 1. First — запоминаем положение всех карточек, в том числе скрытых.
     const state = Flip.getState(items)
 
@@ -120,9 +126,30 @@ export default function flipFilter(el, ctx = {}) {
     const endHeight = keepRoomFor(startHeight, grid.offsetHeight, maxScroll, scroll)
     const duration = ctx.reduced ? 0 : 0.7
 
+    // 3-4. Invert + Play. ВАЖНО: до анимации высоты (ниже). Flip в этот момент
+    // измеряет конечные позиции карточек — сетка должна быть естественной высоты.
+    // Если сначала зажать её в стартовую высоту (fromTo применяет «from» сразу),
+    // ряды сплющатся: карточки поедут в «сжатые» позиции, лягут друг на друга и
+    // только в конце рывком встанут на места (так было при переключении на «Все»).
+    flip?.kill()
+    flip = Flip.from(state, {
+      duration,
+      ease: 'power3.inOut',
+      absolute: true,
+      // Появившиеся: из маленьких и прозрачных в нормальные.
+      onEnter: (elements) =>
+        gsap.fromTo(
+          elements,
+          { opacity: 0, scale: 0.7 },
+          { opacity: 1, scale: 1, duration: ctx.reduced ? 0 : 0.6, delay: 0.1 },
+        ),
+      // Исчезающие: уменьшаются и тают (Flip сам спрячет их после анимации).
+      onLeave: (elements) => gsap.to(elements, { opacity: 0, scale: 0.7, duration: ctx.reduced ? 0 : 0.5 }),
+    })
+
     // Высота сетки — плавно от старой к новой (иначе на время анимации сетка
-    // схлопнулась бы: absolute: true вынимает карточки из потока).
-    gsap.killTweensOf(grid)
+    // схлопнулась бы: absolute: true вынимает карточки из потока). Карточки уже
+    // абсолютные — на них эта высота не влияет.
     gsap.fromTo(
       grid,
       { height: startHeight },
@@ -139,23 +166,6 @@ export default function flipFilter(el, ctx = {}) {
         },
       },
     )
-
-    // 3-4. Invert + Play.
-    flip?.kill()
-    flip = Flip.from(state, {
-      duration,
-      ease: 'power3.inOut',
-      absolute: true,
-      // Появившиеся: из маленьких и прозрачных в нормальные.
-      onEnter: (elements) =>
-        gsap.fromTo(
-          elements,
-          { opacity: 0, scale: 0.7 },
-          { opacity: 1, scale: 1, duration: ctx.reduced ? 0 : 0.6, delay: 0.1 },
-        ),
-      // Исчезающие: уменьшаются и тают (Flip сам спрячет их после анимации).
-      onLeave: (elements) => gsap.to(elements, { opacity: 0, scale: 0.7, duration: ctx.reduced ? 0 : 0.5 }),
-    })
   }
 
   /** Вернуть табы на прежнее место на экране (если что-то сдвинуло страницу). */

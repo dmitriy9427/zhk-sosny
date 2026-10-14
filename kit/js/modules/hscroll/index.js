@@ -86,7 +86,10 @@ export default function hscroll(el, ctx = {}) {
       x: () => -distance(),
       ease: 'none', // линейно! см. п. 3 в шапке
       scrollTrigger: {
-        trigger: el,
+        // Триггер — сам закрепляемый блок, а не секция: у секции бывают
+        // внутренние отступы, и тогда «top top» секции оставлял закреплённый
+        // экран сдвинутым вниз на величину отступа (низ ленты уходил за экран).
+        trigger: pin,
         pin,
         start: 'top top',
         end: () => `+=${distance()}`,
@@ -107,7 +110,7 @@ export default function hscroll(el, ctx = {}) {
           drawSVG: '0% 100%',
           ease: 'none',
           scrollTrigger: {
-            trigger: el,
+            trigger: pin,
             start: 'top top',
             end: () => `+=${distance()}`,
             scrub: true,
