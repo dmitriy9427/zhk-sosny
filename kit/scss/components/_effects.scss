@@ -354,20 +354,33 @@
 
 .stack-cards__item {
   position: sticky;
-  // Каждая следующая карточка липнет чуть ниже — видны «корешки» стопки.
-  top: calc(var(--header-height) + #{space(6)} + var(--stack-index, 0) * #{space(3)});
+  // --stack-top считает JS: карточка по центру видимой области под шапкой.
+  // Запасной вариант (до JS): каждая следующая липнет чуть ниже — видны «корешки».
+  top: var(--stack-top, calc(var(--header-height) + #{space(6)} + var(--stack-index, 0) * #{space(3)}));
   transform-origin: center top;
 
-  // Затемнение уходящей карточки (--stack-dim анимирует JS).
-  &::after {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    content: '';
-    background: #000;
-    border-radius: inherit;
-    opacity: var(--stack-dim, 0);
+  // Выше экрана — не липнет, иначе её низ (кнопки, ссылки) никогда не будет виден.
+  &.is-tall {
+    position: relative;
+    top: auto;
   }
+
+  // Липкая карточка уменьшается при прокрутке — заранее свой слой для transform.
+  &:not(.is-tall) {
+    will-change: transform;
+  }
+}
+
+// Затемнение уходящей карточки: JS добавляет слой и анимирует его opacity
+// (не CSS-переменную — см. «почему» в stack-cards/index.js).
+.stack-cards__shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: #000;
+  border-radius: inherit;
+  opacity: 0;
 }
 
 // ─── scroll-progress ───────────────────────────────────────────────────────
