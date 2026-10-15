@@ -81,7 +81,7 @@ npm run build      # готовый сайт в dist/
 
 ## Как устроено
 
-Учебные главы «что, как и почему» — в [docs/](docs/README.md):
+Учебник «для самого маленького» — [с чего начать](docs/00-start.md) и [разбор кода](docs/code/README.md); главы «что, как и почему» — в [docs/](docs/README.md):
 [архитектура](docs/01-architecture.md) ·
 [3D-квартал](docs/02-building3d.md) ·
 [каталог и шахматка](docs/03-catalog.md) ·
