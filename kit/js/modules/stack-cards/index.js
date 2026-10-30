@@ -35,11 +35,21 @@
  * карточку слой .stack-cards__shade и анимирует его opacity, а у карточки —
  * только transform. Оба свойства браузер считает на видеокарте (компоновка),
  * без пересчёта стилей и перерисовки.
+ * ─── Телефон: мигание и «перезагрузка» страницы на iPhone ──────────────────
+ * 1. При прокрутке iOS прячет/показывает адресную строку — window.innerHeight
+ *    меняется, приходит resize, layout() пересчитывал --stack-top, и липкие
+ *    карточки «прыгали» (мигание). Теперь высота окна запоминается, а
+ *    пересчёт идёт только при смене ширины или заметном (> 150px) сдвиге.
+ * 2. will-change + scale у десятка больших карточек = десяток огромных слоёв
+ *    (при DPR 3) — Safari упирается в память и перезагружает вкладку. На таче
+ *    карточки без will-change, без масштабирования и без слоёв затемнения
+ *    (на Android они тоже вызывали мигание) — остаётся чистый sticky.
  * @module kit/modules/stack-cards
  */
 import { gsap } from '../../core/gsap.js'
 import { readOptions } from '../../core/options.js'
 import { createDisposer } from '../../core/lifecycle.js'
+import { isTouch } from '../../core/env.js'
 
 const DEFAULTS = {
   /** Насколько уменьшается уходящая карточка (0.1 = на 10%). */
@@ -97,7 +107,9 @@ export default function stackCards(root, ctx = {}) {
   const d = createDisposer()
   cards.forEach((card, i) => card.style.setProperty('--stack-index', i))
   // Слой затемнения в каждой карточке, кроме последней (её никто не накрывает).
-  const shades = cards.slice(0, -1).map((card) => {
+  // На таче слоёв затемнения нет: 14 анимируемых слоёв на Android съедают память GPU,
+  // карточки мигают, а кнопки пропадают.
+  const shades = (isTouch() ? [] : cards.slice(0, -1)).map((card) => {
     const shade = document.createElement('span')
     shade.className = 'stack-cards__shade'
     shade.setAttribute('aria-hidden', 'true')
@@ -106,10 +118,14 @@ export default function stackCards(root, ctx = {}) {
   })
   d.add(() => shades.forEach((shade) => shade.remove()))
 
+  const touch = isTouch()
+  let vw = window.innerWidth
+  let vh = window.innerHeight
+
   function layout() {
     const header = headerHeight()
     cards.forEach((card, i) => {
-      const top = stackTop(card.offsetHeight, window.innerHeight, header, i * options.step, options.gap)
+      const top = stackTop(card.offsetHeight, vh, header, i * options.step, options.gap)
       card.classList.toggle('is-tall', top === null)
       if (top === null) card.style.removeProperty('--stack-top')
       else card.style.setProperty('--stack-top', `${top}px`)
@@ -120,27 +136,33 @@ export default function stackCards(root, ctx = {}) {
   const observer = new ResizeObserver(() => layout())
   cards.forEach((card) => observer.observe(card))
   d.add(() => observer.disconnect())
-  d.listen(window, 'resize', layout)
+  d.listen(window, 'resize', () => {
+    // Адресная строка браузера меняет только высоту на небольшую величину — не трогаем.
+    const sameWidth = window.innerWidth === vw
+    if (touch && sameWidth && Math.abs(window.innerHeight - vh) < 150) return
+    vw = window.innerWidth
+    vh = window.innerHeight
+    layout()
+  })
   d.add(() =>
     cards.forEach((card) => {
       card.classList.remove('is-tall')
       card.style.removeProperty('--stack-top')
     }),
   )
-  if (ctx.reduced) return { layout, destroy: d.dispose }
+  if (ctx.reduced || touch) return { layout, destroy: d.dispose }
 
   const g = gsap.context(() => {
     cards.slice(0, -1).forEach((card, i) => {
       const next = cards[i + 1]
       // Не липнущая (высокая) карточка не уходит «под» следующую — не уменьшаем её.
       const stuck = () => !card.classList.contains('is-tall')
-      gsap
-        .timeline({
-          defaults: { ease: 'none' },
-          scrollTrigger: { trigger: next, start: 'top bottom', end: 'top top', scrub: true, invalidateOnRefresh: true },
-        })
-        .to(card, { scale: () => (stuck() ? 1 - options.scale : 1) }, 0)
-        .to(shades[i], { opacity: () => (stuck() ? options.dim : 0) }, 0)
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: { trigger: next, start: 'top bottom', end: 'top top', scrub: true, invalidateOnRefresh: true },
+      })
+      tl.to(card, { scale: () => (stuck() ? 1 - options.scale : 1) }, 0)
+      tl.to(shades[i], { opacity: () => (stuck() ? options.dim : 0) }, 0)
     })
   }, root)
   d.add(() => g.revert())
